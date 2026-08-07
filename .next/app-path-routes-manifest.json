@@ -1,0 +1,7 @@
+{
+  "/api/contests/route": "/api/contests",
+  "/api/youtube/playlist/route": "/api/youtube/playlist",
+  "/api/profiles/route": "/api/profiles",
+  "/_not-found/page": "/_not-found",
+  "/page": "/"
+}
