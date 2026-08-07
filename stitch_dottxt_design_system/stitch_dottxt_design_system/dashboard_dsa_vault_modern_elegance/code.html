@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DSA Vault - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "primary-container": "#747474",
+                "secondary": "#5d5f5f",
+                "on-secondary-container": "#616363",
+                "primary-fixed-dim": "#c6c6c6",
+                "error": "#ba1a1a",
+                "background": "#f9f9f9",
+                "secondary-container": "#dfe0e0",
+                "on-tertiary-fixed": "#1d1b19",
+                "surface": "#f9f9f9",
+                "on-primary-fixed": "#1b1b1b",
+                "on-background": "#1b1b1b",
+                "on-primary": "#ffffff",
+                "inverse-primary": "#c6c6c6",
+                "on-secondary-fixed-variant": "#454747",
+                "surface-tint": "#5e5e5e",
+                "surface-container": "#eeeeee",
+                "tertiary-fixed-dim": "#cac6c2",
+                "on-secondary-fixed": "#1a1c1c",
+                "primary": "#5c5c5c",
+                "on-surface-variant": "#414753",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-high": "#e8e8e8",
+                "tertiary-fixed": "#e6e2de",
+                "error-container": "#ffdad6",
+                "on-primary-fixed-variant": "#474747",
+                "on-tertiary-fixed-variant": "#484644",
+                "surface-container-highest": "#e2e2e2",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#e2e2e2",
+                "on-tertiary": "#ffffff",
+                "on-primary-container": "#fcfcfc",
+                "surface-container-low": "#f3f3f3",
+                "surface-bright": "#f9f9f9",
+                "secondary-fixed-dim": "#c6c6c7",
+                "surface-dim": "#dadada",
+                "on-tertiary-container": "#fffbff",
+                "primary-fixed": "#e2e2e2",
+                "on-secondary": "#ffffff",
+                "surface-variant": "#e2e2e2",
+                "on-surface": "#1b1b1b",
+                "tertiary": "#5e5b59",
+                "inverse-on-surface": "#f1f1f1",
+                "tertiary-container": "#777471",
+                "outline-variant": "#c1c6d5",
+                "outline": "#717785",
+                "inverse-surface": "#303030"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+            "gutter": "16px",
+            "margin_mobile": "16px",
+            "panel_width": "480px",
+            "unit": "4px",
+            "sidebar_width": "260px",
+            "margin_desktop": "24px"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Playfair Display"
+                ],
+                "display": [
+                        "Playfair Display"
+                ],
+                "body": [
+                        "Inter"
+                ],
+                "label": [
+                        "Inter"
+                ],
+                "caption": ["Inter"],
+                "h2": ["Playfair Display"],
+                "body-sm": ["Inter"],
+                "body-md": ["Inter"],
+                "mono-code": ["JetBrains Mono"],
+                "mono-label": ["JetBrains Mono"],
+                "h3": ["Playfair Display"],
+                "h1": ["Playfair Display"]
+        },
+        "fontSize": {
+            "caption": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "h2": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "mono-code": ["12px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "mono-label": ["13px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "h3": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "h1": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { background-color: #f9f9f9; color: #414753; }
+        .card-bg { background-color: #ffffff; border: 1px solid #e2e2e2; }
+        .hover-bg:hover { background-color: #f3f3f3; }
+        .primary-border-focus:focus-within { border-color: #5c5c5c; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden flex h-screen font-body-md text-body-md text-on-surface-variant">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-sidebar_width border-r border-outline-variant bg-surface-container-low flex flex-col z-20">
+<div class="p-6 border-b border-outline-variant flex items-center gap-4">
+<img alt="User profile and sync status" class="w-10 h-10 rounded-full object-cover" data-alt="A stylized geometric avatar representing a generic user profile, utilizing sharp angles, deep blues, and glowing primary color accents, set against a dark void background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDczzaSlg8Uvx-6ETR4ovgeuxk9kkU-kIqOxLKTQp5vSyicDCD454Zs6xQdeL3aSyyp8IYpEKU1vlvrGEw2YPLbKX9M148i--zCWWD2wX4v6sFfp6D4GID1Yshx3TBUf1tESPXfAZVTdCdvNoqg_HF3PFf3gDfu5WZczDx3WF8woHmUm79BFKzG_S1ohJzr-kYRRWdbPdPahSHn-5ALy9L5ru0aGNpl5oomB2CpPtrF-BvQ_FTEWLZKVw"/>
+<div>
+<h1 class="font-h1 text-h1 text-primary tracking-tighter leading-none">DSA Vault</h1>
+<p class="font-caption text-caption text-secondary mt-1">Sync: Online</p>
+</div>
+</div>
+<ul class="flex-1 overflow-y-auto py-4">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary border-l-2 border-primary bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span>Problem Tracker</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="playlist_add_check">playlist_add_check</span>
+<span>Playlists</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-14 px-margin_desktop ml-sidebar_width w-[calc(100%-260px)] fixed top-0 border-b border-outline-variant bg-background z-10 transition-all duration-200">
+<h2 class="font-h2 text-h2 text-on-surface">Dashboard</h2>
+<div class="flex items-center gap-6">
+<div class="relative hidden md:block w-64 primary-border-focus rounded bg-[#ffffff] border border-[#e2e2e2] overflow-hidden">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-sm font-body-sm pl-10 py-1.5 text-on-surface" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="sync">sync</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-sidebar_width mt-14 p-margin_desktop w-full h-[calc(100vh-56px)] overflow-y-auto">
+<!-- Welcome Header & Stats Grid -->
+<section class="mb-8">
+<h2 class="font-h2 text-h2 text-on-surface mb-6">Welcome back, Developer</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stat Card 1 -->
+<div class="card-bg p-6 rounded flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">functions</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant uppercase">Total Solved</span>
+<span class="font-h1 text-h1 text-on-surface">432</span>
+<span class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span> 12 this week
+                    </span>
+</div>
+<!-- Stat Card 2 -->
+<div class="card-bg p-6 rounded flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">local_fire_department</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant uppercase">Current Streak</span>
+<span class="font-h1 text-h1 text-primary">14 Days</span>
+<span class="font-body-sm text-body-sm text-primary flex items-center gap-1">
+                        Personal best: 42
+                    </span>
+</div>
+<!-- Stat Card 3 -->
+<div class="card-bg p-6 rounded flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">playlist_add_check_circle</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant uppercase">Playlists Completed</span>
+<span class="font-h1 text-h1 text-on-surface">7</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+                        2 in progress
+                    </span>
+</div>
+</div>
+</section>
+<!-- Two Column Layout: Today's Action Items -->
+<h3 class="font-h3 text-h3 text-on-surface mb-4">Today's Action Items</h3>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+<!-- Col 1: Revision Queue -->
+<div class="card-bg rounded overflow-hidden flex flex-col">
+<div class="bg-[#f3f3f3] p-4 border-b border-[#e2e2e2] flex justify-between items-center">
+<h4 class="font-h3 text-h3 text-on-surface">Revision Queue</h4>
+<span class="bg-[#e2e2e2] text-on-surface font-caption text-caption px-2 py-1 rounded">4 Due</span>
+</div>
+<div class="p-0 flex-1">
+<ul class="divide-y divide-[#e2e2e2]">
+<li class="hover-bg p-4 flex items-start gap-4 transition-colors">
+<input class="mt-1 rounded bg-transparent border-[#c1c6d5] text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-body-md text-body-md text-on-surface font-medium">LRU Cache</span>
+<span class="font-mono-label text-mono-label text-[#5e5b59] bg-[#5e5b59]/10 px-2 py-0.5 rounded">Hard</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-mono-code text-mono-code opacity-70">
+<span>Last: 2023-10-15</span>
+<span>Interval: 14d</span>
+</div>
+</div>
+</li>
+<li class="hover-bg p-4 flex items-start gap-4 transition-colors">
+<input class="mt-1 rounded bg-transparent border-[#c1c6d5] text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-body-md text-body-md text-on-surface font-medium">Merge Intervals</span>
+<span class="font-mono-label text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded">Medium</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-mono-code text-mono-code opacity-70">
+<span>Last: 2023-10-22</span>
+<span>Interval: 7d</span>
+</div>
+</div>
+</li>
+<li class="hover-bg p-4 flex items-start gap-4 transition-colors">
+<input class="mt-1 rounded bg-transparent border-[#c1c6d5] text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-body-md text-body-md text-on-surface font-medium">Valid Parentheses</span>
+<span class="font-mono-label text-mono-label text-secondary bg-secondary/10 px-2 py-0.5 rounded">Easy</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-mono-code text-mono-code opacity-70">
+<span>Last: 2023-09-01</span>
+<span>Interval: 60d</span>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Col 2: Playlist Goals -->
+<div class="card-bg rounded overflow-hidden flex flex-col">
+<div class="bg-[#f3f3f3] p-4 border-b border-[#e2e2e2] flex justify-between items-center">
+<h4 class="font-h3 text-h3 text-on-surface">Playlist Goals</h4>
+<span class="bg-[#e2e2e2] text-on-surface font-caption text-caption px-2 py-1 rounded">Blind 75</span>
+</div>
+<div class="p-0 flex-1">
+<ul class="divide-y divide-[#e2e2e2]">
+<li class="hover-bg p-4 flex items-start gap-4 transition-colors">
+<input class="mt-1 rounded bg-transparent border-[#c1c6d5] text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-body-md text-body-md text-on-surface font-medium">Clone Graph</span>
+<a class="text-error hover:text-error-container transition-colors" href="#" title="Watch on YouTube">
+<span class="material-symbols-outlined text-[20px]">smart_display</span>
+</a>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Graphs · Medium</span>
+</div>
+</li>
+<li class="hover-bg p-4 flex items-start gap-4 transition-colors">
+<input class="mt-1 rounded bg-transparent border-[#c1c6d5] text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-body-md text-body-md text-on-surface font-medium">Course Schedule</span>
+<a class="text-error hover:text-error-container transition-colors" href="#" title="Watch on YouTube">
+<span class="material-symbols-outlined text-[20px]">smart_display</span>
+</a>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Graphs · Medium</span>
+</div>
+</li>
+</ul>
+<!-- Empty State Example (Hidden by default, shown for demonstration if list was empty) -->
+<div class="hidden flex-col items-center justify-center p-12 text-center h-full">
+<span class="material-symbols-outlined text-[48px] text-[#e2e2e2] mb-4">check_circle</span>
+<h5 class="font-h3 text-h3 text-on-surface mb-2">You're all caught up</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">No pending items in this playlist for today.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

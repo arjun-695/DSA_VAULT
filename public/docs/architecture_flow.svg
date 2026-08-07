@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="node-client" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="glow-line-1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes move-dot {
+      0% { offset-distance: 0%; }
+      100% { offset-distance: 100%; }
+    }
+    .flow-path-1 { stroke-dasharray: 6 6; animation: dash 2s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -24; } }
+  </style>
+
+  <rect width="900" height="320" rx="16" fill="url(#bg2)" stroke="rgba(255,255,255,0.1)"/>
+
+  <!-- Title -->
+  <text x="450" y="38" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="bold" font-size="18" fill="#f8fafc" text-anchor="middle" letter-spacing="1">
+    SYSTEM ARCHITECTURE &amp; ZERO-QUOTA EXTRACTION FLOW
+  </text>
+  <text x="450" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">
+    Local-first client storage seamlessly coupled with serverless python zero-quota extractor
+  </text>
+
+  <!-- Connection Lines -->
+  <!-- Line 1: Client -> Dexie -->
+  <path d="M 210 160 L 330 160" fill="none" stroke="#38bdf8" stroke-width="2.5" class="flow-path-1"/>
+  <!-- Line 2: Client -> Next API -->
+  <path d="M 140 210 L 140 245 L 530 245 L 530 210" fill="none" stroke="#818cf8" stroke-width="2.5" class="flow-path-1"/>
+  <!-- Line 3: Next API -> Option 1 yt-dlp -->
+  <path d="M 590 160 L 690 120" fill="none" stroke="#34d399" stroke-width="2.5" class="flow-path-1"/>
+  <!-- Line 4: Next API -> Option 2 YouTube API -->
+  <path d="M 590 160 L 690 200" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4 4"/>
+
+  <!-- NODE 1: Client UI -->
+  <g transform="translate(70, 110)" filter="url(#shadow)">
+    <rect width="140" height="100" rx="12" fill="url(#node-client)" stroke="#38bdf8" stroke-width="1.5"/>
+    <rect x="10" y="10" width="120" height="22" rx="6" fill="rgba(56, 189, 248, 0.15)"/>
+    <text x="70" y="26" font-family="sans-serif" font-weight="bold" font-size="12" fill="#38bdf8" text-anchor="middle">Next.js Client UI</text>
+    <text x="70" y="52" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">Dashboard / Vault</text>
+    <text x="70" y="70" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Zustand Store</text>
+  </g>
+
+  <!-- NODE 2: Local Storage & Dexie DB -->
+  <g transform="translate(330, 110)" filter="url(#shadow)">
+    <rect width="140" height="100" rx="12" fill="url(#node-client)" stroke="#c084fc" stroke-width="1.5"/>
+    <rect x="10" y="10" width="120" height="22" rx="6" fill="rgba(192, 132, 252, 0.15)"/>
+    <text x="70" y="26" font-family="sans-serif" font-weight="bold" font-size="12" fill="#c084fc" text-anchor="middle">IndexedDB / Dexie</text>
+    <text x="70" y="52" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">Local Storage</text>
+    <text x="70" y="70" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">100% Offline Vault</text>
+  </g>
+
+  <!-- NODE 3: Next.js API Route -->
+  <g transform="translate(470, 110)" filter="url(#shadow)">
+    <rect width="120" height="100" rx="12" fill="url(#node-client)" stroke="#818cf8" stroke-width="1.5"/>
+    <rect x="10" y="10" width="100" height="22" rx="6" fill="rgba(129, 140, 248, 0.15)"/>
+    <text x="60" y="26" font-family="sans-serif" font-weight="bold" font-size="11" fill="#818cf8" text-anchor="middle">/api/youtube</text>
+    <text x="60" y="52" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">Server Route</text>
+    <text x="60" y="70" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Auto-Fallback</text>
+  </g>
+
+  <!-- NODE 4: Option 1 (Zero-Quota yt-dlp) -->
+  <g transform="translate(690, 75)" filter="url(#shadow)">
+    <rect width="170" height="75" rx="12" fill="rgba(5, 150, 105, 0.15)" stroke="#34d399" stroke-width="2"/>
+    <text x="85" y="26" font-family="sans-serif" font-weight="bold" font-size="12" fill="#34d399" text-anchor="middle">Option 1: yt-dlp</text>
+    <text x="85" y="45" font-family="sans-serif" font-weight="bold" font-size="11" fill="#f8fafc" text-anchor="middle">0 API Quota Used</text>
+    <text x="85" y="62" font-family="sans-serif" font-size="10" fill="#a7f3d0" text-anchor="middle">No API Key Required</text>
+  </g>
+
+  <!-- NODE 5: Option 2 (YouTube API v3) -->
+  <g transform="translate(690, 175)" filter="url(#shadow)">
+    <rect width="170" height="75" rx="12" fill="rgba(30, 41, 59, 0.8)" stroke="#64748b" stroke-width="1"/>
+    <text x="85" y="26" font-family="sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">Option 2: Data API v3</text>
+    <text x="85" y="45" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">1 Quota / 50 Videos</text>
+    <text x="85" y="62" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Requires API Key</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(450, 290)" text-anchor="middle">
+    <text font-family="sans-serif" font-size="11" fill="#64748b">
+      <tspan fill="#34d399">■ Primary (Option 1 - Zero Quota)</tspan> &nbsp;&nbsp;
+      <tspan fill="#64748b">■ Secondary (Option 2 - API Key Fallback)</tspan>
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DSA Vault - New Problem Entry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#313a43",
+                        "surface-container-low": "#141c24",
+                        "on-surface-variant": "#c0c7d4",
+                        "primary-container": "#58a6ff",
+                        "primary-fixed": "#d3e4ff",
+                        "on-secondary": "#00390e",
+                        "tertiary": "#d5bbff",
+                        "on-primary-fixed": "#001c38",
+                        "outline-variant": "#414752",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "on-background": "#dae3ee",
+                        "on-secondary-fixed": "#002106",
+                        "secondary-fixed-dim": "#7bdb80",
+                        "tertiary-fixed": "#ecdcff",
+                        "on-error": "#690005",
+                        "inverse-surface": "#dae3ee",
+                        "outline": "#8b919d",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#a2c9ff",
+                        "on-tertiary": "#41008b",
+                        "surface-variant": "#2d363e",
+                        "surface-container-high": "#222b33",
+                        "background": "#0b141c",
+                        "surface-container-highest": "#2d363e",
+                        "on-primary-container": "#003a6b",
+                        "on-tertiary-container": "#4c069d",
+                        "on-primary": "#00315c",
+                        "primary": "#a2c9ff",
+                        "on-tertiary-fixed": "#270058",
+                        "inverse-primary": "#0060aa",
+                        "on-tertiary-fixed-variant": "#5a21ab",
+                        "secondary": "#7bdb80",
+                        "surface-dim": "#0b141c",
+                        "secondary-fixed": "#97f999",
+                        "on-secondary-container": "#91f294",
+                        "surface-container-lowest": "#060f16",
+                        "on-primary-fixed-variant": "#004882",
+                        "surface-container": "#182028",
+                        "on-secondary-fixed-variant": "#005319",
+                        "inverse-on-surface": "#29313a",
+                        "surface": "#0b141c",
+                        "secondary-container": "#007124",
+                        "tertiary-container": "#b88eff",
+                        "on-surface": "#dae3ee",
+                        "primary-fixed-dim": "#a2c9ff",
+                        "tertiary-fixed-dim": "#d5bbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin_mobile": "16px",
+                        "panel_width": "480px",
+                        "unit": "4px",
+                        "sidebar_width": "260px",
+                        "margin_desktop": "24px"
+                    },
+                    "fontFamily": {
+                        "caption": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "mono-label": ["JetBrains Mono"],
+                        "h3": ["Inter"],
+                        "h1": ["Inter"]
+                    },
+                    "fontSize": {
+                        "caption": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-code": ["12px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-label": ["13px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "h3": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "h1": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for panel */
+        .panel-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .panel-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .panel-scroll::-webkit-scrollbar-thumb {
+            background-color: #414752;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-14 px-margin_desktop ml-sidebar_width bg-background border-b border-outline-variant transition-all duration-200 z-10">
+<div class="flex items-center gap-4">
+<h1 class="font-h2 text-h2 text-on-surface">DSA Vault</h1>
+</div>
+<div class="flex items-center gap-4 text-primary">
+<button class="p-2 hover:bg-surface-bright rounded-full transition-colors duration-200 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-full transition-colors duration-200 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-full transition-colors duration-200 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-sidebar_width flex flex-col border-r border-outline-variant bg-surface-container-low z-20">
+<div class="p-6 border-b border-outline-variant">
+<h2 class="font-h1 text-h1 text-primary tracking-tighter">DSA Vault</h2>
+<p class="font-caption text-caption text-on-surface-variant mt-1">Sync: Online</p>
+</div>
+<div class="flex flex-col py-4 font-body-md text-body-md text-primary">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary border-l-2 border-primary bg-surface-variant hover:bg-surface-bright transition-colors duration-200 opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+                Problem Tracker
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="playlist_add_check">playlist_add_check</span>
+                Playlists
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area (Background) -->
+<main class="ml-sidebar_width flex-1 bg-background p-6 relative overflow-y-auto">
+<!-- Mock Problem Tracker Content -->
+<div class="mb-6 flex justify-between items-end">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface mb-1">Problem Tracker</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Manage your algorithm practice.</p>
+</div>
+<button class="bg-[#238636] hover:bg-[#2ea043] text-white px-4 py-2 rounded font-body-md flex items-center gap-2 transition-colors border border-transparent">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Entry
+            </button>
+</div>
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 bg-[#161B22] border-b border-[#30363D] p-3 text-on-surface-variant font-caption text-caption uppercase">
+<div class="col-span-1">Status</div>
+<div class="col-span-4">Problem Name</div>
+<div class="col-span-2">Difficulty</div>
+<div class="col-span-2">Topic</div>
+<div class="col-span-3">Last Solved</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-[#30363D]">
+<div class="grid grid-cols-12 gap-4 p-3 items-center hover:bg-[#1C2128] transition-colors cursor-pointer">
+<div class="col-span-1 flex justify-center"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span></div>
+<div class="col-span-4 font-body-sm text-on-surface">Two Sum</div>
+<div class="col-span-2"><span class="bg-secondary/15 text-secondary px-2 py-0.5 rounded font-mono-label text-mono-label">EASY</span></div>
+<div class="col-span-2 font-body-sm text-on-surface-variant">Arrays</div>
+<div class="col-span-3 font-mono-label text-mono-label text-on-surface-variant">2 days ago</div>
+</div>
+<div class="grid grid-cols-12 gap-4 p-3 items-center hover:bg-[#1C2128] transition-colors cursor-pointer">
+<div class="col-span-1 flex justify-center"><span class="material-symbols-outlined text-outline text-[18px]">radio_button_unchecked</span></div>
+<div class="col-span-4 font-body-sm text-on-surface">LRU Cache</div>
+<div class="col-span-2"><span class="bg-[#f0883e]/15 text-[#f0883e] px-2 py-0.5 rounded font-mono-label text-mono-label">MED</span></div>
+<div class="col-span-2 font-body-sm text-on-surface-variant">Design</div>
+<div class="col-span-3 font-mono-label text-mono-label text-on-surface-variant">--</div>
+</div>
+<div class="grid grid-cols-12 gap-4 p-3 items-center hover:bg-[#1C2128] transition-colors cursor-pointer">
+<div class="col-span-1 flex justify-center"><span class="material-symbols-outlined text-error text-[18px]">error</span></div>
+<div class="col-span-4 font-body-sm text-on-surface">Median of Two Sorted Arrays</div>
+<div class="col-span-2"><span class="bg-error/15 text-error px-2 py-0.5 rounded font-mono-label text-mono-label">HARD</span></div>
+<div class="col-span-2 font-body-sm text-on-surface-variant">Binary Search</div>
+<div class="col-span-3 font-mono-label text-mono-label text-on-surface-variant">1 week ago</div>
+</div>
+</div>
+<!-- Overlay Backdrop -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 transition-opacity"></div>
+</main>
+<!-- Slide-out Panel Overlay (NewEntry_Overlay) -->
+<aside class="fixed right-0 top-0 h-full w-panel_width bg-[#161B22] border-l border-[#30363D] shadow-none z-40 flex flex-col transform translate-x-0 transition-transform duration-300 ease-in-out">
+<!-- Panel Header -->
+<div class="flex justify-between items-center px-6 py-4 border-b border-[#30363D]">
+<h3 class="font-h3 text-h3 text-on-surface">New Problem Entry</h3>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Panel Body (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-6 panel-scroll space-y-6">
+<!-- Link Input -->
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">LeetCode URL</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined text-[18px]">link</span>
+</span>
+<input class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded pl-10 py-2 focus:outline-none focus:border-primary-container focus:ring-0 transition-colors placeholder:text-outline-variant" placeholder="https://leetcode.com/problems/..." type="url"/>
+</div>
+</div>
+<!-- Name Input -->
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Problem Name</label>
+<input class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 focus:outline-none focus:border-primary-container focus:ring-0 transition-colors placeholder:text-outline-variant" placeholder="e.g., Two Sum" type="text"/>
+</div>
+<!-- Metadata Grid -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Difficulty</label>
+<div class="relative">
+<select class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary-container focus:ring-0 transition-colors">
+<option value="">Select...</option>
+<option value="easy">Easy</option>
+<option value="medium">Medium</option>
+<option value="hard">Hard</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Progress</label>
+<div class="relative">
+<select class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary-container focus:ring-0 transition-colors">
+<option value="todo">To Do</option>
+<option value="in_progress">In Progress</option>
+<option value="solved">Solved</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Topic</label>
+<div class="relative">
+<select class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary-container focus:ring-0 transition-colors">
+<option value="">Select Topic...</option>
+<option value="arrays">Arrays &amp; Hashing</option>
+<option value="pointers">Two Pointers</option>
+<option value="dp">Dynamic Programming</option>
+<option value="trees">Trees</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Language</label>
+<div class="relative">
+<select class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary-container focus:ring-0 transition-colors">
+<option value="python">Python3</option>
+<option value="cpp">C++</option>
+<option value="java">Java</option>
+<option value="js">JavaScript</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Complexity Monospace Inputs -->
+<div class="bg-[#0D1117] border border-[#30363D] rounded p-4 space-y-4">
+<h4 class="font-caption text-caption text-on-surface-variant uppercase tracking-wider mb-2">Complexity Analysis</h4>
+<div class="flex items-center gap-4">
+<label class="w-16 font-mono-label text-mono-label text-on-surface-variant">Time</label>
+<div class="flex-1 flex items-center border-b border-[#30363D] focus-within:border-primary-container transition-colors">
+<span class="text-outline font-mono-code text-mono-code mr-1">O(</span>
+<input class="w-full bg-transparent border-none p-0 text-on-surface font-mono-code text-mono-code focus:ring-0 placeholder:text-outline-variant" placeholder="N" type="text"/>
+<span class="text-outline font-mono-code text-mono-code ml-1">)</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<label class="w-16 font-mono-label text-mono-label text-on-surface-variant">Space</label>
+<div class="flex-1 flex items-center border-b border-[#30363D] focus-within:border-primary-container transition-colors">
+<span class="text-outline font-mono-code text-mono-code mr-1">O(</span>
+<input class="w-full bg-transparent border-none p-0 text-on-surface font-mono-code text-mono-code focus:ring-0 placeholder:text-outline-variant" placeholder="1" type="text"/>
+<span class="text-outline font-mono-code text-mono-code ml-1">)</span>
+</div>
+</div>
+</div>
+<!-- Frequency -->
+<div class="space-y-2">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Encounter Frequency</label>
+<div class="relative">
+<select class="w-full bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary-container focus:ring-0 transition-colors">
+<option value="low">Low (Rarely seen)</option>
+<option value="medium">Medium (Common in interviews)</option>
+<option value="high">High (Must know)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Notes Input -->
+<div class="space-y-2 flex-1 flex flex-col">
+<label class="block font-caption text-caption text-on-surface-variant uppercase tracking-wider">Personal Notes &amp; Patterns</label>
+<textarea class="w-full h-32 bg-[#0D1117] border border-[#30363D] text-on-surface font-body-md rounded px-3 py-2 focus:outline-none focus:border-primary-container focus:ring-0 transition-colors resize-none placeholder:text-outline-variant" placeholder="e.g., Use a hash map to store complements..."></textarea>
+</div>
+</div>
+<!-- Panel Footer -->
+<div class="px-6 py-4 border-t border-[#30363D] bg-[#161B22] flex justify-end gap-3 mt-auto">
+<button class="px-4 py-2 bg-transparent border border-[#30363D] text-[#C9D1D9] hover:bg-[#1C2128] rounded font-body-md transition-colors">
+                Cancel
+            </button>
+<button class="px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white border border-transparent rounded font-body-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                Save to Local Memory
+            </button>
+</div>
+</aside>
+</body></html>

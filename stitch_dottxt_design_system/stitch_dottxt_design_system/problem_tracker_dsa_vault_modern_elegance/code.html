@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Problem Tracker - DSA Vault</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "primary-container": "#747474",
+                "secondary": "#5d5f5f",
+                "on-secondary-container": "#616363",
+                "primary-fixed-dim": "#c6c6c6",
+                "error": "#ba1a1a",
+                "background": "#f9f9f9",
+                "secondary-container": "#dfe0e0",
+                "on-tertiary-fixed": "#1d1b19",
+                "surface": "#f9f9f9",
+                "on-primary-fixed": "#1b1b1b",
+                "on-background": "#1b1b1b",
+                "on-primary": "#ffffff",
+                "inverse-primary": "#c6c6c6",
+                "on-secondary-fixed-variant": "#454747",
+                "surface-tint": "#5e5e5e",
+                "surface-container": "#eeeeee",
+                "tertiary-fixed-dim": "#cac6c2",
+                "on-secondary-fixed": "#1a1c1c",
+                "primary": "#5c5c5c",
+                "on-surface-variant": "#414753",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-high": "#e8e8e8",
+                "tertiary-fixed": "#e6e2de",
+                "error-container": "#ffdad6",
+                "on-primary-fixed-variant": "#474747",
+                "on-tertiary-fixed-variant": "#484644",
+                "surface-container-highest": "#e2e2e2",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#e2e2e2",
+                "on-tertiary": "#ffffff",
+                "on-primary-container": "#fcfcfc",
+                "surface-container-low": "#f3f3f3",
+                "surface-bright": "#f9f9f9",
+                "secondary-fixed-dim": "#c6c6c7",
+                "surface-dim": "#dadada",
+                "on-tertiary-container": "#fffbff",
+                "primary-fixed": "#e2e2e2",
+                "on-secondary": "#ffffff",
+                "surface-variant": "#e2e2e2",
+                "on-surface": "#1b1b1b",
+                "tertiary": "#5e5b59",
+                "inverse-on-surface": "#f1f1f1",
+                "tertiary-container": "#777471",
+                "outline-variant": "#c1c6d5",
+                "outline": "#717785",
+                "inverse-surface": "#303030"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+            "gutter": "16px",
+            "margin_mobile": "16px",
+            "panel_width": "480px",
+            "unit": "4px",
+            "sidebar_width": "260px",
+            "margin_desktop": "24px"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Playfair Display"
+                ],
+                "display": [
+                        "Playfair Display"
+                ],
+                "body": [
+                        "Playfair Display"
+                ],
+                "label": [
+                        "Playfair Display"
+                ]
+        },
+        "fontSize": {
+            "caption": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "h2": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "mono-code": ["12px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "mono-label": ["13px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "h3": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "h1": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+        }
+},
+    },
+  }
+</script>
+<style>
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f3f3f3; }
+        ::-webkit-scrollbar-thumb { background: #dadada; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c1c6d5; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex font-body">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-sidebar_width flex flex-col border-r border-outline-variant bg-surface-container-low z-20">
+<div class="p-6 border-b border-outline-variant">
+<h1 class="font-headline text-h1 text-primary tracking-tighter">DSA Vault</h1>
+<p class="font-label text-caption text-on-surface-variant mt-1">Sync: Online</p>
+</div>
+<div class="flex-1 py-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary border-l-2 border-primary bg-surface-variant opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="font-body text-body-md">Problem Tracker</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="playlist_add_check">playlist_add_check</span>
+<span class="font-body text-body-md">Playlists</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors duration-200 mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body text-body-md">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-sidebar_width flex-1 flex flex-col min-h-screen bg-background">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 border-b border-outline-variant bg-background flex justify-between items-center h-14 px-margin_desktop z-10 sticky">
+<div class="font-headline text-h2 text-on-surface">Problem Tracker</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-low border border-outline-variant rounded pl-9 pr-3 py-1.5 font-body text-body-sm text-on-surface focus:outline-none focus:border-primary-container w-64 transition-colors placeholder:text-on-surface-variant" placeholder="Search problems..." type="text"/>
+</div>
+<div class="flex gap-2 text-on-surface-variant">
+<button class="hover:text-primary transition-all duration-200 p-1"><span class="material-symbols-outlined" data-icon="sync">sync</span></button>
+<button class="hover:text-primary transition-all duration-200 p-1"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-primary transition-all duration-200 p-1"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+</div>
+</div>
+</header>
+<!-- Tracker Content -->
+<div class="p-margin_desktop flex-1 flex flex-col gap-4 overflow-hidden">
+<!-- Toolbar -->
+<div class="flex justify-between items-center bg-surface-container-low p-3 rounded border border-outline-variant">
+<div class="flex gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant rounded font-label text-body-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                    </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant rounded font-label text-body-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[16px]">sort</span> Sort
+                    </button>
+</div>
+<button class="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-on-primary rounded font-label text-body-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">add</span> New Entry
+                </button>
+</div>
+<!-- Data Table Container -->
+<div class="border border-outline-variant rounded bg-surface-container-low flex-1 overflow-auto">
+<table class="w-full text-left whitespace-nowrap">
+<thead class="bg-surface-container sticky top-0 z-10 border-b border-outline-variant shadow-sm">
+<tr>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-8"></th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider min-w-[200px]">Name</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-24">Difficulty</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-28">Progress</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-32">Topic</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-24">Time O(n)</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-24">Space O(n)</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-24">Language</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider w-24">Date</th>
+<th class="px-3 py-2 font-label text-caption text-on-surface-variant uppercase tracking-wider max-w-[150px]">Notes</th>
+</tr>
+</thead>
+<tbody class="font-body text-body-sm text-on-surface divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="px-3 py-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px] group-hover:text-primary transition-colors">code</span></td>
+<td class="px-3 py-2 font-medium">Two Sum</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-secondary-fixed text-on-secondary-fixed border border-secondary-fixed-dim/30">Easy</span>
+</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim/30">Mastered</span>
+</td>
+<td class="px-3 py-2">Array, Hash Table</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(n)</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(n)</td>
+<td class="px-3 py-2">Python</td>
+<td class="px-3 py-2 text-on-surface-variant">Oct 12</td>
+<td class="px-3 py-2 text-on-surface-variant truncate max-w-[150px]">Used hash map for 1-pass solution.</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="px-3 py-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px] group-hover:text-primary transition-colors">code</span></td>
+<td class="px-3 py-2 font-medium">LRU Cache</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-tertiary-fixed text-on-tertiary-fixed border border-tertiary-fixed-dim/30">Medium</span>
+</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">Review</span>
+</td>
+<td class="px-3 py-2">Hash Table, Linked List</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(1)</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(capacity)</td>
+<td class="px-3 py-2">C++</td>
+<td class="px-3 py-2 text-on-surface-variant">Oct 10</td>
+<td class="px-3 py-2 text-on-surface-variant truncate max-w-[150px]">Doubly linked list + unordered_map. Need to practice implementing the list manually.</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="px-3 py-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px] group-hover:text-primary transition-colors">code</span></td>
+<td class="px-3 py-2 font-medium">Median of Two Sorted Arrays</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-error-container text-on-error-container border border-error/30">Hard</span>
+</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">Review</span>
+</td>
+<td class="px-3 py-2">Array, Binary Search</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(log(min(m,n)))</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(1)</td>
+<td class="px-3 py-2">Java</td>
+<td class="px-3 py-2 text-on-surface-variant">Oct 08</td>
+<td class="px-3 py-2 text-on-surface-variant truncate max-w-[150px]">Tricky edge cases with partitioning.</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="px-3 py-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px] group-hover:text-primary transition-colors">code</span></td>
+<td class="px-3 py-2 font-medium">Merge Intervals</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-tertiary-fixed text-on-tertiary-fixed border border-tertiary-fixed-dim/30">Medium</span>
+</td>
+<td class="px-3 py-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim/30">Mastered</span>
+</td>
+<td class="px-3 py-2">Array, Sorting</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(n log n)</td>
+<td class="px-3 py-2 font-label text-mono-label text-on-surface-variant">O(log n)</td>
+<td class="px-3 py-2">Python</td>
+<td class="px-3 py-2 text-on-surface-variant">Oct 05</td>
+<td class="px-3 py-2 text-on-surface-variant truncate max-w-[150px]">Sort by start time, compare with previous end.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body></html>
