@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useVaultStore } from "@/store/use-vault-store";
 import { dateKey } from "@/lib/revision";
-import type { Difficulty, PlatformStats, Playlist, Problem, ProblemGroup, ProblemProgress, ReviewFrequency, UpcomingContest, UserProfiles, UserSettings } from "@/lib/types";
+import type { Difficulty, PlatformStats, Problem, ProblemGroup, ProblemProgress, ReviewFrequency, UpcomingContest, UserProfiles, UserSettings } from "@/lib/types";
 import {
   HeatmapCells,
   HeatmapChart,
@@ -22,12 +22,11 @@ import {
   type HeatmapColumn,
 } from "@/components/charts/heatmap";
 
-type View = "dashboard" | "problems" | "playlists" | "groups" | "cp" | "settings";
+type View = "dashboard" | "problems" | "groups" | "cp" | "settings";
 
 const navItems: { id: View; label: string; icon: typeof Grid2X2 }[] = [
   { id: "dashboard", label: "Dashboard", icon: Grid2X2 },
   { id: "problems", label: "Problem Tracker", icon: LayoutList },
-  { id: "playlists", label: "Playlists", icon: ListFilter },
   { id: "groups", label: "Problem Groups", icon: FolderKanban },
   { id: "cp", label: "CP Hub", icon: Trophy },
   { id: "settings", label: "Settings", icon: Settings }
@@ -42,7 +41,7 @@ export function VaultApp() {
   const [viewingProblem, setViewingProblem] = useState<Problem | null>(null);
   const [deletingProblem, setDeletingProblem] = useState<Problem | null>(null);
   const [query, setQuery] = useState("");
-  const { load, hydrated, problems, playlists, settings, updateSettings } = useVaultStore();
+  const { load, hydrated, problems, settings, updateSettings } = useVaultStore();
 
   useEffect(() => { void load(); }, [load]);
 
@@ -92,7 +91,7 @@ export function VaultApp() {
               {sidebarCollapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
             </button>
             <h1 className="font-display text-[24px] md:text-[28px] leading-none text-ink dark:text-white">
-              {view === "dashboard" ? "Dashboard" : view === "problems" ? "Problem Tracker" : view === "playlists" ? "Playlist Manager" : view === "groups" ? "Problem Groups" : view === "cp" ? "CP Hub & Contests" : "Settings"}
+              {view === "dashboard" ? "Dashboard" : view === "problems" ? "Problem Tracker" : view === "groups" ? "Problem Groups" : view === "cp" ? "CP Hub & Contests" : "Settings"}
             </h1>
           </div>
 
@@ -102,7 +101,7 @@ export function VaultApp() {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={view === "playlists" ? "Search playlists..." : "Search problems..."}
+                placeholder="Search problems..."
                 className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-muted text-ink dark:text-white"
               />
             </label>
@@ -138,7 +137,6 @@ export function VaultApp() {
               onViewProblem={(p) => setViewingProblem(p)}
             />
           )}
-          {view === "playlists" && <PlaylistManager query={query} />}
           {view === "groups" && <ProblemGroupsManager onViewProblem={(p) => setViewingProblem(p)} />}
           {view === "cp" && <CPHub />}
           {view === "settings" && <SettingsPage />}
@@ -359,8 +357,8 @@ const heatmapLevelStylesDark = [
 ] as const;
 
 function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigate: (view: View) => void; onAddProblem: () => void; onViewNotes: (p: Problem) => void; query: string }) {
-  const { problems, playlists, playlistVideos, todos, settings, toggleProblem, toggleVideo } = useVaultStore();
-  const completedPlaylists = playlists.filter((item) => item.status === "completed").length;
+  const { problems, todos, settings, toggleProblem } = useVaultStore();
+  const masteredCount = problems.filter((p) => p.progress === "Mastered").length;
   const filteredTodos = todos.filter((todo) => `${todo.title} ${todo.subtitle}`.toLowerCase().includes(query.toLowerCase()));
 
   const isDark = settings.themeMode === "dark";
@@ -376,12 +374,6 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
     problems.forEach((p) => {
       if (p.date_solved) {
         countsByDate[p.date_solved] = (countsByDate[p.date_solved] || 0) + 1;
-      }
-    });
-
-    playlistVideos.forEach((v) => {
-      if (v.is_completed && v.assigned_date) {
-        countsByDate[v.assigned_date] = (countsByDate[v.assigned_date] || 0) + 1;
       }
     });
 
@@ -448,13 +440,13 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
       activeDaysCount: activeDays,
       totalTaskCompletions: totalTasks
     };
-  }, [problems, playlistVideos]);
+  }, [problems]);
 
   return <div className="mx-auto max-w-[1440px] space-y-8">
     <section className="flex flex-col justify-between gap-5 border-b border-line dark:border-[#27272a] pb-6 md:flex-row md:items-end">
       <div>
         <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Today, {new Intl.DateTimeFormat("en", { month: "long", day: "numeric", year: "numeric" }).format(new Date())}</p>
-        <p className="max-w-xl text-sm leading-relaxed text-muted">Keep your recall sharp. Your review queue and learning playlists are organized for your next focused session.</p>
+        <p className="max-w-xl text-sm leading-relaxed text-muted">Keep your recall sharp. Your revision queue is organized for your next focused session.</p>
       </div>
       <button onClick={onAddProblem} className="flex h-10 items-center justify-center gap-2 bg-ink dark:bg-white text-white dark:text-ink px-4 text-xs font-medium transition hover:bg-accent dark:hover:bg-neutral-200 shrink-0"><Plus size={16} />Log a problem</button>
     </section>
@@ -463,7 +455,7 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
       <Stat label="Problems logged" value={String(problems.length)} detail="Your working set" icon={Code2} />
       <Stat label="Due today" value={String(todos.length)} detail={todos.length ? "Ready for review" : "Queue is clear"} icon={Target} accent />
       <Stat label="Current streak" value={`${currentStreak} days`} detail={`Active days: ${activeDaysCount}`} icon={Flame} />
-      <Stat label="Playlists done" value={String(completedPlaylists)} detail={`${playlists.filter((item) => item.status === "ongoing").length} in progress`} icon={PlayCircle} />
+      <Stat label="Mastered" value={String(masteredCount)} detail={`${problems.length ? Math.round((masteredCount / problems.length) * 100) : 0}% of vault`} icon={Trophy} />
     </div>
 
     {/* Activity Heatmap Chart Section */}
@@ -474,7 +466,7 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
             <Flame size={20} className="text-accent" />
             Activity Streak & Consistency
           </h3>
-          <p className="mt-1 text-xs text-muted">The more problems and videos completed per day, the darker the cell.</p>
+          <p className="mt-1 text-xs text-muted">The more problems solved and reviewed per day, the darker the cell.</p>
         </div>
         <div className="flex flex-wrap items-center gap-4 font-mono text-xs text-muted">
           <span>Active Days: <strong className="text-ink dark:text-white font-semibold">{activeDaysCount}</strong></span>
@@ -512,7 +504,7 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
       <section className="border border-line dark:border-[#27272a] bg-white dark:bg-[#121214]">
         <div className="flex items-center justify-between border-b border-line dark:border-[#27272a] bg-[#f3f3f3] dark:bg-[#18181b] px-5 py-4">
-          <div><h3 className="font-display text-xl text-ink dark:text-white">Today&apos;s Todos</h3><p className="mt-0.5 text-xs text-muted">A blend of spaced repetition and playlist momentum.</p></div>
+          <div><h3 className="font-display text-xl text-ink dark:text-white">Today&apos;s Todos</h3><p className="mt-0.5 text-xs text-muted">Spaced repetition revision queue.</p></div>
           <button onClick={() => onNavigate("problems")} className="flex items-center gap-1 text-xs text-muted hover:text-ink dark:hover:text-white">View tracker <ArrowUpRight size={14} /></button>
         </div>
         <div className="divide-y divide-line dark:divide-[#27272a]">
@@ -520,13 +512,13 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
             <TodoRow
               key={`${todo.kind}-${todo.id}`}
               todo={todo}
-              onToggle={() => todo.kind === "problem" ? toggleProblem(todo.id) : toggleVideo(todo.id)}
-              onViewDetails={todo.kind === "problem" ? () => {
+              onToggle={() => toggleProblem(todo.id)}
+              onViewDetails={() => {
                 const target = problems.find((p) => p.id === todo.id);
                 if (target) onViewNotes(target);
-              } : undefined}
+              }}
             />
-          )) : <EmptyState icon={Check} title="Nothing due today" detail="Your review queue is clear. Add a problem or create a playlist to build momentum." action={onAddProblem} actionLabel="Log first problem" />}
+          )) : <EmptyState icon={Check} title="Nothing due today" detail="Your review queue is clear. Log a problem to start tracking." action={onAddProblem} actionLabel="Log first problem" />}
         </div>
       </section>
 
@@ -567,7 +559,7 @@ function ProgressBar({ label, value, total, color }: { label: string; value: num
   return <div><div className="mb-2 flex justify-between text-xs text-ink dark:text-white"><span>{label}</span><span className="font-mono text-muted">{percent}%</span></div><div className="h-2 bg-[#e8e8e8] dark:bg-[#27272a]"><div className={`h-2 ${color}`} style={{ width: `${percent}%` }} /></div></div>;
 }
 
-function TodoRow({ todo, onToggle, onViewDetails }: { todo: { kind: "problem" | "video"; title: string; subtitle: string; meta: string; href?: string }; onToggle: () => void; onViewDetails?: () => void }) {
+function TodoRow({ todo, onToggle, onViewDetails }: { todo: { kind: "problem"; title: string; subtitle: string; meta: string; href?: string }; onToggle: () => void; onViewDetails?: () => void }) {
   return (
     <div className="group flex items-center gap-3 px-5 py-4 hover:bg-[#fcfcfc] dark:hover:bg-[#18181b]">
       <button onClick={onToggle} className="grid h-5 w-5 shrink-0 place-items-center border border-line dark:border-[#3f3f46] text-transparent transition hover:border-accent hover:text-accent" aria-label={`Complete ${todo.title}`}><Check size={13} /></button>
@@ -1808,222 +1800,8 @@ function DeleteConfirmationModal({ problem, onClose }: { problem: Problem; onClo
   );
 }
 
-function PlaylistManager({ query }: { query: string }) {
-  const { playlists } = useVaultStore();
-  const ongoing = playlists.filter((playlist) => playlist.status === "ongoing" && playlist.name.toLowerCase().includes(query.toLowerCase()));
-  const paused = playlists.filter((playlist) => playlist.status === "paused" && playlist.name.toLowerCase().includes(query.toLowerCase()));
-  const completed = playlists.filter((playlist) => playlist.status === "completed" && playlist.name.toLowerCase().includes(query.toLowerCase()));
-
-  return (
-    <div className="mx-auto max-w-[1240px] space-y-6">
-      <div className="border-b border-line dark:border-[#27272a] pb-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Learning streams</p>
-        <p className="mt-1 text-sm text-muted">Organize video lessons and study tracks into a sustainable daily cadence.</p>
-      </div>
-      <PlaylistCreationForm />
-      {ongoing.length > 0 && <PlaylistSection title="Ongoing playlists" icon={PlayCircle} playlists={ongoing} />}
-      {paused.length > 0 && <PlaylistSection title="Paused playlists" icon={PauseCircle} playlists={paused} />}
-      {completed.length > 0 && <PlaylistSection title="Completed playlists" icon={Check} playlists={completed} completed />}
-      {!ongoing.length && !paused.length && !completed.length && (
-        <div className="mt-8 border border-line dark:border-[#27272a] bg-white dark:bg-[#121214]">
-          <EmptyState icon={PlayCircle} title="Your learning streams start here" detail="Create a playlist and list your video lessons or topics above. DSA Vault will split them into daily chunks and schedule them into Today's Todos." />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlaylistCreationForm() {
-  const [name, setName] = useState("");
-  const [itemsText, setItemsText] = useState("");
-  const [dailyGoal, setDailyGoal] = useState("2");
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { createPlaylist } = useVaultStore();
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
-    setStatus("");
-
-    const lines = itemsText
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
-
-    const items = lines.length > 0
-      ? lines.map((line, idx) => {
-          if (line.startsWith("http://") || line.startsWith("https://")) {
-            return { title: `Lesson ${idx + 1}`, video_url: line };
-          }
-          return { title: line, video_url: "" };
-        })
-      : [{ title: `${name.trim()} - Lesson 1`, video_url: "" }];
-
-    const result = await createPlaylist({
-      name: name.trim(),
-      dailyGoal: Number(dailyGoal) || 2,
-      items
-    });
-    setLoading(false);
-    if (result.error) {
-      setStatus(result.error);
-    } else {
-      setStatus(`Created playlist with ${items.length} item${items.length === 1 ? "" : "s"}. Scheduled in Today's Todos.`);
-      setName("");
-      setItemsText("");
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="border border-line dark:border-[#27272a] bg-white dark:bg-[#121214] p-4 md:p-5">
-      <div className="mb-4 flex items-center gap-2 font-display text-xl text-ink dark:text-white">
-        <PlayCircle size={18} />
-        Create a playlist / learning path
-      </div>
-      <div className="grid gap-3 md:grid-cols-[1fr_130px_auto]">
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Playlist name (e.g. NeetCode 150 / Graph Algorithms)"
-          className="h-11 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] text-ink dark:text-white px-3 text-sm outline-none placeholder:text-muted focus:border-accent"
-        />
-        <label className="flex h-11 items-center gap-2 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] px-3">
-          <input
-            type="number"
-            min="1"
-            max="50"
-            required
-            value={dailyGoal}
-            onChange={(e) => setDailyGoal(e.target.value)}
-            className="w-full bg-transparent text-sm outline-none text-ink dark:text-white"
-          />
-          <span className="whitespace-nowrap text-[10px] uppercase text-muted">items/day</span>
-        </label>
-        <button
-          disabled={loading}
-          className="flex h-11 items-center justify-center gap-2 bg-accent text-white px-5 text-sm font-medium hover:bg-ink dark:hover:bg-white dark:hover:text-ink disabled:opacity-60"
-        >
-          {loading ? <Loader2 className="animate-spin" size={16} /> : <ArrowUpRight size={16} />}
-          Create
-        </button>
-      </div>
-      <div className="mt-3">
-        <textarea
-          rows={3}
-          value={itemsText}
-          onChange={(e) => setItemsText(e.target.value)}
-          placeholder="Enter video/lesson titles or links (one per line, e.g. '01 - Two Sum', '02 - Valid Anagram'...)"
-          className="w-full border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] p-3 text-sm outline-none placeholder:text-muted text-ink dark:text-white focus:border-accent font-mono resize-y"
-        />
-      </div>
-      {status && (
-        <p className={`mt-3 text-xs ${status.startsWith("Created") ? "text-green" : "text-[#ba1a1a]"}`}>
-          {status}
-        </p>
-      )}
-    </form>
-  );
-}
-
-function PlaylistCard({ playlist, completed }: { playlist: Playlist; completed?: boolean }) {
-  const { playlistVideos, deletePlaylist, togglePausePlaylist } = useVaultStore();
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
-
-  const isPaused = playlist.status === "paused";
-  const percent = playlist.total_videos ? Math.round((playlist.completed_videos / playlist.total_videos) * 100) : 0;
-  const nextVideo = playlistVideos.find((video) => video.playlist_id === playlist.id && !video.is_completed);
-
-  const handleDelete = async () => {
-    if (playlist.id) {
-      await deletePlaylist(playlist.id);
-    }
-  };
-
-  const handleTogglePause = async () => {
-    if (playlist.id) {
-      await togglePausePlaylist(playlist.id);
-    }
-  };
-
-  return (
-    <article className={`group relative overflow-hidden border border-line dark:border-[#27272a] bg-white dark:bg-[#121214] ${isPaused ? "opacity-90" : ""}`}>
-      <div className={`relative h-32 ${completed ? "bg-[#dfe0e0] dark:bg-[#27272a]" : isPaused ? "bg-gradient-to-br from-[#27272a] via-[#3f3f46] to-[#52525b]" : "bg-gradient-to-br from-[#202b35] via-[#536575] to-[#c5d3df] dark:from-[#18181b] dark:to-[#3f3f46]"}`}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(135deg, transparent 35%, rgba(255,255,255,.6) 35%, transparent 37%), linear-gradient(45deg, transparent 55%, rgba(255,255,255,.4) 55%, transparent 57%)" }} />
-        
-        {/* Top bar controls */}
-        <div className="absolute right-3 top-3 flex items-center gap-2">
-          {completed && <div className="border border-line dark:border-[#3f3f46] bg-white/80 dark:bg-[#18181b]/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted">Done</div>}
-          {isPaused && <div className="border border-amber-500/40 bg-amber-500/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-amber-500 font-semibold">Paused</div>}
-          
-          {!completed && (
-            <button
-              onClick={handleTogglePause}
-              title={isPaused ? "Resume Playlist" : "Pause Playlist"}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 dark:bg-[#18181b]/80 text-muted opacity-80 hover:opacity-100 hover:bg-accent hover:text-white transition-all"
-            >
-              {isPaused ? <Play size={13} className="ml-0.5" /> : <Pause size={13} />}
-            </button>
-          )}
-
-          {confirmingDelete ? (
-            <div className="flex items-center gap-1 bg-white dark:bg-[#18181b] border border-red-500/40 p-1 rounded text-xs shadow-lg">
-              <button onClick={handleDelete} className="bg-red-600 text-white px-2 py-0.5 rounded text-[11px] font-medium hover:bg-red-700">Delete</button>
-              <button onClick={() => setConfirmingDelete(false)} className="text-muted hover:text-ink dark:hover:text-white px-1.5 py-0.5 text-[11px]">Cancel</button>
-            </div>
-          ) : (
-            <button 
-              onClick={() => setConfirmingDelete(true)} 
-              title="Delete Playlist"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 dark:bg-[#18181b]/80 text-muted opacity-80 hover:opacity-100 hover:bg-red-500 hover:text-white transition-all"
-            >
-              <Trash2 size={13} />
-            </button>
-          )}
-        </div>
-
-        {!completed && (
-          <div className="absolute bottom-3 right-3 bg-white dark:bg-[#18181b] text-ink dark:text-white px-2 py-1 font-mono text-xs">
-            {playlist.completed_videos}/{playlist.total_videos}
-          </div>
-        )}
-      </div>
-
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-display text-xl leading-tight text-ink dark:text-white">{playlist.name}</h3>
-        </div>
-        <div className="mt-5 flex items-center justify-between text-[10px] uppercase tracking-[0.12em] text-muted">
-          <span>{completed ? "Completed on" : isPaused ? "Status" : "Progress"}</span>
-          <span className="font-mono normal-case tracking-normal">{completed ? playlist.completed_at || "—" : isPaused ? "Paused (Hidden from Todos)" : `${percent}%`}</span>
-        </div>
-        <div className="mt-2 h-1.5 bg-stone dark:bg-[#27272a]">
-          <div className={`h-1.5 ${completed ? "bg-muted" : isPaused ? "bg-amber-500" : "bg-accent"}`} style={{ width: `${percent}%` }} />
-        </div>
-        {nextVideo && <div className="mt-4 truncate border-t border-line dark:border-[#27272a] pt-3 text-xs text-muted">Next: {nextVideo.title}</div>}
-      </div>
-    </article>
-  );
-}
-
-function PlaylistSection({ title, icon: Icon, playlists, completed }: { title: string; icon: typeof PlayCircle; playlists: Playlist[]; completed?: boolean }) {
-  return (
-    <section className="mt-9">
-      <div className="mb-4 flex items-center gap-2 border-b border-line dark:border-[#27272a] pb-3 font-display text-2xl text-ink dark:text-white">
-        <Icon size={22} className="text-muted" />{title}<span className="font-mono text-xs text-muted">{playlists.length}</span>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {playlists.map((playlist) => (
-          <PlaylistCard key={playlist.id} playlist={playlist} completed={completed} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function SettingsPage() {
-  const { settings, updateSettings, exportData, importData, resetDatabase, problems, playlists, playlistVideos } = useVaultStore();
+  const { settings, updateSettings, exportData, importData, resetDatabase, problems, groups } = useVaultStore();
   const [form, setForm] = useState<UserSettings>(settings);
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -2134,10 +1912,6 @@ function SettingsPage() {
               <input value={form.defaultLanguage} onChange={(e) => setForm({ ...form, defaultLanguage: e.target.value })} placeholder="TypeScript, Python, etc." />
             </Field>
 
-            <Field label="Default Playlist Daily Goal">
-              <input type="number" min="1" max="50" value={form.defaultDailyGoal} onChange={(e) => setForm({ ...form, defaultDailyGoal: Number(e.target.value) })} />
-            </Field>
-
             <Field label="Daily Review Interval (Days)">
               <input type="number" min="1" max="30" value={form.dailyIntervalDays} onChange={(e) => setForm({ ...form, dailyIntervalDays: Number(e.target.value) })} />
             </Field>
@@ -2163,7 +1937,7 @@ function SettingsPage() {
       {/* Data Management Section */}
       <div className="border border-line dark:border-[#27272a] bg-white dark:bg-[#121214] p-6 md:p-8 space-y-6">
         <h3 className="font-display text-2xl border-b border-line dark:border-[#27272a] pb-3 text-ink dark:text-white">Data Vault Management</h3>
-        <p className="text-xs text-muted">Backup your entire problem set, notes, and playlists as a JSON file, or restore from a previous backup.</p>
+        <p className="text-xs text-muted">Backup your entire problem set, notes, and problem groups as a JSON file, or restore from a previous backup.</p>
 
         <div className="flex flex-wrap gap-4 pt-2">
           <button onClick={handleExport} className="flex items-center gap-2 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] text-ink dark:text-white px-4 py-2.5 text-xs font-medium hover:border-accent">
@@ -2194,12 +1968,12 @@ function SettingsPage() {
             <div className="mt-2 font-display text-3xl text-ink dark:text-white">{notesCount}</div>
           </div>
           <div className="border border-line dark:border-[#27272a] p-4 bg-[#f9f9f9] dark:bg-[#18181b]">
-            <div className="font-mono text-[10px] uppercase text-muted">Playlists</div>
-            <div className="mt-2 font-display text-3xl text-ink dark:text-white">{playlists.length}</div>
+            <div className="font-mono text-[10px] uppercase text-muted">Problem Groups</div>
+            <div className="mt-2 font-display text-3xl text-ink dark:text-white">{groups.length}</div>
           </div>
           <div className="border border-line dark:border-[#27272a] p-4 bg-[#f9f9f9] dark:bg-[#18181b]">
-            <div className="font-mono text-[10px] uppercase text-muted">Playlist Videos</div>
-            <div className="mt-2 font-display text-3xl text-ink dark:text-white">{playlistVideos.length}</div>
+            <div className="font-mono text-[10px] uppercase text-muted">Mastered</div>
+            <div className="mt-2 font-display text-3xl text-green">{problems.filter((p) => p.progress === "Mastered").length}</div>
           </div>
         </div>
       </div>
@@ -2210,7 +1984,7 @@ function SettingsPage() {
           <div className="w-full max-w-md border border-[#ba1a1a] bg-paper dark:bg-[#121214] p-6 shadow-2xl">
             <h3 className="font-display text-2xl text-[#93000a] dark:text-[#fca5a5]">Reset Vault Database?</h3>
             <p className="mt-3 text-xs leading-relaxed text-ink dark:text-white">
-              This will erase all your logged problems, custom notes, and imported playlists, and reload the default seed data.
+              This will erase all your logged problems, custom notes, and problem groups, and reload the default seed data.
             </p>
             <div className="mt-6 flex justify-end gap-3 border-t border-line dark:border-[#27272a] pt-4">
               <button type="button" onClick={() => setShowResetConfirm(false)} className="border border-line dark:border-[#27272a] px-4 py-2 text-xs text-ink dark:text-white hover:border-accent">

@@ -15,7 +15,7 @@
   </p>
 
   <p align="center">
-    <b>DSA Vault</b> is a local-first, privacy-focused workspace designed for logging coding problems, mastering Data Structures &amp; Algorithms via <b>Spaced Repetition</b>, and structuring learning playlists &amp; roadmaps into daily goals.
+    <b>DSA Vault</b> is a local-first, privacy-focused workspace designed for logging coding problems and mastering Data Structures &amp; Algorithms via <b>Spaced Repetition</b>.
   </p>
 
 </div>
@@ -26,7 +26,6 @@
 
 - [✨ Key Features](#-key-features)
 - [🧠 Spaced Repetition Engine](#-spaced-repetition-engine)
-- [🎯 Learning Streams &amp; Playlists](#-learning-streams--playlists)
 - [🚀 Quick Start](#-quick-start)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [❓ Frequently Asked Questions](#-frequently-asked-questions)
@@ -42,27 +41,27 @@
       <p>Your problem data, notes, and study progress stay strictly in your browser using <b>Dexie.js (IndexedDB)</b> and <b>LocalStorage</b>. Zero accounts, zero tracking, zero server latency.</p>
     </td>
     <td width="50%">
-      <h3>🎯 Learning Streams &amp; Daily Cadence</h3>
-      <p>Organize custom learning tracks, video lessons, and problem sets into custom daily goals that seamlessly integrate with your daily Todo queue.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
       <h3>🧠 Ebbinghaus Spaced Repetition</h3>
       <p>Automated revision schedule based on memory retention curves. Automatically calculates next review dates for <b>Daily (1d)</b>, <b>Weekly (7d)</b>, and <b>Monthly (30d)</b> reviews.</p>
     </td>
+  </tr>
+  <tr>
     <td width="50%">
       <h3>📊 52-Week Visual Heatmap &amp; Analytics</h3>
       <p>Track your daily coding streak, problem difficulty breakdown (Easy, Medium, Hard), language stats, and total task completions with interactive <b>@visx</b> charts.</p>
     </td>
-  </tr>
-  <tr>
     <td width="50%">
       <h3>🏆 Competitive Programming &amp; Contests</h3>
       <p>Integrated profile tracking for <b>LeetCode</b>, <b>Codeforces</b>, <b>CodeChef</b>, and <b>AtCoder</b> alongside live contest schedule reminders.</p>
     </td>
+  </tr>
+  <tr>
     <td width="50%">
-      <h3>📁 Complete Data Portability</h3>
+      <h3>📁 Problem Groups &amp; Curated Sets</h3>
+      <p>Group coding questions into custom sets (e.g., Blind 75, NeetCode 150, Company OA Prep) to practice topic-wise and track group mastery.</p>
+    </td>
+    <td width="50%">
+      <h3>💾 Complete Data Portability</h3>
       <p>One-click <b>JSON Export &amp; Import</b> engine. Backup your entire problem vault or migrate seamlessly across devices with zero data loss.</p>
     </td>
   </tr>
@@ -86,16 +85,6 @@ DSA Vault implements the **Ebbinghaus Forgetting Curve** model to ensure you nev
    - `Monthly`: Next review in **+30 days**
 3. **Due Notification**: When a problem reaches its review date, it automatically appears in **Today's Revision Todos**.
 4. **Mastery Progression**: Solved reviews increase retention strength until the problem reaches **Mastered** status.
-
----
-
-## 🎯 Learning Streams & Playlists
-
-Create structured study paths and video lesson queues with automated daily pacing:
-- Define your playlist/track name and target pace (e.g. 2 items / day).
-- Add lesson titles, topics, or video links.
-- DSA Vault schedules items evenly across consecutive days and loads today's tasks directly into your dashboard.
-- Pause, resume, or mark lessons completed at your own pace.
 
 ---
 
@@ -132,6 +121,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. The app ini
 - **State Management**: [Zustand 5](https://github.com/pmndrs/zustand)
 - **Local Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
 - **Data Visualization**: [@visx](https://airbnb.io/visx/) heatmap &amp; chart tools
+- **Analytics & Insights**: [@vercel/analytics](https://vercel.com/analytics) + [@vercel/speed-insights](https://vercel.com/speed-insights)
 - **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com/) + [Lucide Icons](https://lucide.dev/)
 
 </details>
@@ -143,13 +133,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. The app ini
 <details>
 <summary><b>🔒 Is my data safe &amp; private?</b></summary>
 <br />
-Yes! DSA Vault operates 100% locally inside your web browser. All problem entries, notes, playlist progress, and settings are stored locally in IndexedDB via Dexie.js. No telemetry or tracking scripts are included.
+Yes! DSA Vault operates 100% locally inside your web browser. All problem entries, notes, and settings are stored locally in IndexedDB via Dexie.js. No telemetry or tracking scripts are included.
 </details>
 
 <details>
 <summary><b>💾 How do I backup my problem vault?</b></summary>
 <br />
-Navigate to the <b>Settings</b> tab in the app and click <b>Export Data</b>. This downloads a complete <code>dsa_vault_backup.json</code> file containing all your problems, playlists, groups, and interval settings.
+Navigate to the <b>Settings</b> tab in the app and click <b>Export Data</b>. This downloads a complete <code>dsa_vault_backup.json</code> file containing all your problems, groups, and interval settings.
 </details>
 
 <details>

@@ -1,7 +1,6 @@
 export type Difficulty = "Easy" | "Medium" | "Hard";
 export type ProblemProgress = "Not started" | "Attempted" | "Review" | "Mastered";
 export type ReviewFrequency = "Daily" | "Weekly" | "Monthly" | "Null";
-export type PlaylistStatus = "ongoing" | "completed" | "paused";
 
 export type Problem = {
   id?: number;
@@ -22,31 +21,14 @@ export type Problem = {
   next_review_date: string | null;
 };
 
-export type Playlist = {
-  id?: number;
-  name: string;
-  url: string;
-  daily_goal: number;
-  total_videos: number;
-  completed_videos: number;
-  status: PlaylistStatus;
-  created_at: string;
-  completed_at?: string;
-};
-
-export type PlaylistVideo = {
-  id?: number;
-  playlist_id: number;
+export type Todo = {
+  kind: "problem";
+  id: number;
   title: string;
-  video_url: string;
-  thumbnail_url?: string;
-  assigned_date: string;
-  is_completed: boolean;
+  subtitle: string;
+  meta: string;
+  href?: string;
 };
-
-export type Todo =
-  | { kind: "problem"; id: number; title: string; subtitle: string; meta: string; href?: string }
-  | { kind: "video"; id: number; title: string; subtitle: string; meta: string; href?: string };
 
 export type UserProfiles = {
   leetcode?: string;

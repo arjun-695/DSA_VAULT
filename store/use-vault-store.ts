@@ -3,8 +3,7 @@
 import { create } from "zustand";
 import { db } from "@/lib/db";
 import { calculateNextReviewDate, dateKey, isDue, prepareProblem } from "@/lib/revision";
-import { schedulePlaylistVideos } from "@/lib/playlist";
-import type { Playlist, PlaylistVideo, Problem, ProblemGroup, ReviewFrequency, Todo, UserSettings } from "@/lib/types";
+import type { Problem, ProblemGroup, ReviewFrequency, Todo, UserSettings } from "@/lib/types";
 
 const defaultSettings: UserSettings = {
   defaultReviewFrequency: "Weekly",
@@ -29,16 +28,12 @@ type SavedState = {
   version: number;
   initialized: boolean;
   problems: Problem[];
-  playlists: Playlist[];
-  playlistVideos: PlaylistVideo[];
   groups: ProblemGroup[];
   settings: UserSettings;
 };
 
 const saveToLocalStorage = (data: {
   problems: Problem[];
-  playlists: Playlist[];
-  playlistVideos: PlaylistVideo[];
   groups: ProblemGroup[];
   settings: UserSettings;
 }) => {
@@ -69,8 +64,6 @@ const getFromLocalStorage = (): SavedState | null => {
 
 type VaultStore = {
   problems: Problem[];
-  playlists: Playlist[];
-  playlistVideos: PlaylistVideo[];
   groups: ProblemGroup[];
   todos: Todo[];
   settings: UserSettings;
@@ -80,11 +73,6 @@ type VaultStore = {
   updateProblem: (id: number, updates: Partial<Problem>) => Promise<void>;
   deleteProblem: (id: number) => Promise<void>;
   toggleProblem: (id: number) => Promise<void>;
-  toggleVideo: (id: number) => Promise<void>;
-  createPlaylist: (input: { name: string; url?: string; dailyGoal: number; items: { title: string; video_url?: string }[] }) => Promise<{ error?: string }>;
-  importPlaylist: (input: { name: string; url?: string; dailyGoal: number; items?: { title: string; video_url?: string }[] }) => Promise<{ error?: string }>;
-  deletePlaylist: (id: number) => Promise<void>;
-  togglePausePlaylist: (id: number) => Promise<void>;
   addGroup: (group: Omit<ProblemGroup, "id" | "created_at">) => Promise<void>;
   updateGroup: (id: number, updates: Partial<ProblemGroup>) => Promise<void>;
   deleteGroup: (id: number) => Promise<void>;
@@ -96,10 +84,9 @@ type VaultStore = {
   resetDatabase: () => Promise<void>;
 };
 
-const makeTodos = (problems: Problem[], videos: PlaylistVideo[], playlists: Playlist[]): Todo[] => {
+const makeTodos = (problems: Problem[]): Todo[] => {
   const today = dateKey();
-  const activePlaylistIds = new Set(playlists.filter((p) => p.status !== "paused").map((p) => p.id));
-  const problemTodos = problems.filter((problem) => isDue(problem, today)).map((problem) => ({
+  return problems.filter((problem) => isDue(problem, today)).map((problem) => ({
     kind: "problem" as const,
     id: problem.id!,
     title: problem.name,
@@ -107,38 +94,21 @@ const makeTodos = (problems: Problem[], videos: PlaylistVideo[], playlists: Play
     meta: "Revision",
     href: problem.url
   }));
-  const videoTodos = videos
-    .filter((video) => video.assigned_date === today && !video.is_completed && activePlaylistIds.has(video.playlist_id))
-    .map((video) => ({
-      kind: "video" as const,
-      id: video.id!,
-      title: video.title,
-      subtitle: playlists.find((playlist) => playlist.id === video.playlist_id)?.name || "Playlist video",
-      meta: "Watch",
-      href: video.video_url
-    }));
-  return [...problemTodos, ...videoTodos];
 };
 
 // Background Dexie sync helper (best effort, doesn't block localStorage)
 const syncDexie = async (state: {
   problems: Problem[];
-  playlists: Playlist[];
-  playlistVideos: PlaylistVideo[];
   groups: ProblemGroup[];
   settings: UserSettings;
 }) => {
   try {
-    await db.transaction("rw", [db.problems, db.playlists, db.playlist_videos, db.settings, db.problem_groups], async () => {
+    await db.transaction("rw", [db.problems, db.settings, db.problem_groups], async () => {
       await db.problems.clear();
-      await db.playlists.clear();
-      await db.playlist_videos.clear();
       await db.settings.clear();
       await db.problem_groups.clear();
 
       if (state.problems.length) await db.problems.bulkAdd(state.problems);
-      if (state.playlists.length) await db.playlists.bulkAdd(state.playlists);
-      if (state.playlistVideos.length) await db.playlist_videos.bulkAdd(state.playlistVideos);
       if (state.groups.length) await db.problem_groups.bulkAdd(state.groups);
       await db.settings.add(state.settings);
     });
@@ -149,8 +119,6 @@ const syncDexie = async (state: {
 
 export const useVaultStore = create<VaultStore>((set, get) => ({
   problems: [],
-  playlists: [],
-  playlistVideos: [],
   groups: [],
   todos: [],
   settings: defaultSettings,
@@ -163,19 +131,15 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       const loadedSettings = { ...defaultSettings, ...saved.settings };
       set({
         problems: saved.problems,
-        playlists: saved.playlists,
-        playlistVideos: saved.playlistVideos,
-        groups: saved.groups,
+        groups: saved.groups || [],
         settings: loadedSettings,
-        todos: makeTodos(dueProblems, saved.playlistVideos, saved.playlists),
+        todos: makeTodos(dueProblems),
         hydrated: true
       });
       // Background sync to Dexie
       void syncDexie({
         problems: saved.problems,
-        playlists: saved.playlists,
-        playlistVideos: saved.playlistVideos,
-        groups: saved.groups,
+        groups: saved.groups || [],
         settings: loadedSettings
       });
       return;
@@ -183,16 +147,12 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
 
     // Otherwise, first time setup: check Dexie or create initial seed data
     let problems: Problem[] = [];
-    let playlists: Playlist[] = [];
-    let playlistVideos: PlaylistVideo[] = [];
     let groups: ProblemGroup[] = [];
     let loadedSettings = defaultSettings;
 
     try {
-      [problems, playlists, playlistVideos, groups] = await Promise.all([
+      [problems, groups] = await Promise.all([
         db.problems.toArray(),
-        db.playlists.toArray(),
-        db.playlist_videos.toArray(),
         db.problem_groups.toArray()
       ]);
       const storedSettings = await db.settings.toArray();
@@ -203,7 +163,7 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       // Dexie not initialized or error, fallback to seed
     }
 
-    if (!problems.length && !playlists.length) {
+    if (!problems.length) {
       const seeded = [
         { name: "Two Sum", url: "https://leetcode.com/problems/two-sum/", notes: "Hash map lookup; watch for duplicate values.", difficulty: "Easy" as const, progress: "Mastered" as const, topic: "Array, Hash Table", time_complexity: "O(n)", space_complexity: "O(n)", time_spent: "15m", language: "TypeScript", date_solved: dateKey(), companies: "Amazon, Google", review_frequency: "Weekly" as const },
         { name: "LRU Cache", url: "https://leetcode.com/problems/lru-cache/", notes: "Combine Map with a doubly linked list.", difficulty: "Medium" as const, progress: "Review" as const, topic: "Hash Table, Linked List", time_complexity: "O(1)", space_complexity: "O(capacity)", time_spent: "45m", language: "Go", date_solved: dateKey(), companies: "Microsoft, Meta", review_frequency: "Daily" as const },
@@ -240,59 +200,65 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       groups = seededGroups;
     }
 
-    const stateToSave = { problems, playlists, playlistVideos, groups, settings: loadedSettings };
+    const stateToSave = { problems, groups, settings: loadedSettings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
 
     const dueProblems = problems.filter((p) => isDue(p, dateKey()));
     set({
       problems,
-      playlists,
-      playlistVideos,
       groups,
       settings: loadedSettings,
-      todos: makeTodos(dueProblems, playlistVideos, playlists),
+      todos: makeTodos(dueProblems),
       hydrated: true
     });
   },
-  addProblem: async (input) => {
-    const { settings, problems } = get();
-    const problemData = prepareProblem(input, {
+  addProblem: async (problemInput) => {
+    const { settings } = get();
+    const prepared = prepareProblem(problemInput, {
       Daily: settings.dailyIntervalDays,
       Weekly: settings.weeklyIntervalDays,
       Monthly: settings.monthlyIntervalDays
     });
-    const maxId = problems.reduce((max, p) => Math.max(max, p.id || 0), 0);
-    const newProblem: Problem = { ...problemData, id: maxId + 1 };
-    const updatedProblems = [...problems, newProblem];
-    const newTodos = makeTodos(updatedProblems, get().playlistVideos, get().playlists);
+
+    const maxId = get().problems.reduce((max, p) => Math.max(max, p.id || 0), 0);
+    const newProblem: Problem = { ...prepared, id: maxId + 1 };
+    const updatedProblems = [newProblem, ...get().problems];
+    const newTodos = makeTodos(updatedProblems);
 
     set({ problems: updatedProblems, todos: newTodos });
 
-    const stateToSave = { problems: updatedProblems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: get().groups, settings };
+    const stateToSave = { problems: updatedProblems, groups: get().groups, settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
   updateProblem: async (id, updates) => {
-    const current = get().problems.find((p) => p.id === id);
+    const current = get().problems.find((problem) => problem.id === id);
     if (!current) return;
-    const merged = { ...current, ...updates };
+
     const { settings } = get();
-    let nextReview = merged.next_review_date;
-    if (("review_frequency" in updates || "date_solved" in updates) && !("next_review_date" in updates)) {
-      nextReview = calculateNextReviewDate(merged.date_solved, merged.review_frequency, {
+    let nextReviewDate = current.next_review_date;
+
+    if (updates.review_frequency && updates.review_frequency !== current.review_frequency) {
+      nextReviewDate = calculateNextReviewDate(dateKey(), updates.review_frequency, {
         Daily: settings.dailyIntervalDays,
         Weekly: settings.weeklyIntervalDays,
         Monthly: settings.monthlyIntervalDays
       });
     }
-    const updatedProblem: Problem = { ...merged, next_review_date: nextReview };
-    const updatedProblems = get().problems.map((p) => (p.id === id ? updatedProblem : p));
-    const newTodos = makeTodos(updatedProblems, get().playlistVideos, get().playlists);
+
+    const updatedProblem: Problem = {
+      ...current,
+      ...updates,
+      next_review_date: nextReviewDate
+    };
+
+    const updatedProblems = get().problems.map((problem) => problem.id === id ? updatedProblem : problem);
+    const newTodos = makeTodos(updatedProblems);
 
     set({ problems: updatedProblems, todos: newTodos });
 
-    const stateToSave = { problems: updatedProblems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: get().groups, settings };
+    const stateToSave = { problems: updatedProblems, groups: get().groups, settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
@@ -302,11 +268,11 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       ...g,
       problemIds: g.problemIds.filter((pid) => pid !== id)
     }));
-    const newTodos = makeTodos(updatedProblems, get().playlistVideos, get().playlists);
+    const newTodos = makeTodos(updatedProblems);
 
     set({ problems: updatedProblems, groups: updatedGroups, todos: newTodos });
 
-    const stateToSave = { problems: updatedProblems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: updatedProblems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
@@ -321,122 +287,11 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     });
     const nextProgress: Problem["progress"] = current.progress === "Mastered" ? "Review" : "Mastered";
     const updatedProblems = get().problems.map((problem) => problem.id === id ? { ...problem, next_review_date: nextReview, progress: nextProgress } : problem);
-    const newTodos = makeTodos(updatedProblems, get().playlistVideos, get().playlists);
+    const newTodos = makeTodos(updatedProblems);
 
     set({ problems: updatedProblems, todos: newTodos });
 
-    const stateToSave = { problems: updatedProblems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: get().groups, settings };
-    saveToLocalStorage(stateToSave);
-    void syncDexie(stateToSave);
-  },
-  toggleVideo: async (id) => {
-    const video = get().playlistVideos.find((item) => item.id === id);
-    if (!video) return;
-    const isCompleted = !video.is_completed;
-
-    const playlist = get().playlists.find((item) => item.id === video.playlist_id);
-    const playlistVideos = get().playlistVideos.map((item) => item.id === id ? { ...item, is_completed: isCompleted } : item);
-    const playlists = get().playlists.map((item) => {
-      if (item.id !== playlist?.id) return item;
-      const completedCount = playlistVideos.filter((v) => v.playlist_id === item.id && v.is_completed).length;
-      const status: Playlist["status"] = completedCount >= item.total_videos ? "completed" : "ongoing";
-      return {
-        ...item,
-        completed_videos: completedCount,
-        status,
-        ...(status === "completed" ? { completed_at: dateKey() } : {})
-      };
-    });
-
-    const newTodos = makeTodos(get().problems, playlistVideos, playlists);
-
-    set({ playlistVideos, playlists, todos: newTodos });
-
-    const stateToSave = { problems: get().problems, playlists, playlistVideos, groups: get().groups, settings: get().settings };
-    saveToLocalStorage(stateToSave);
-    void syncDexie(stateToSave);
-  },
-  createPlaylist: async ({ name, url, dailyGoal, items }) => {
-    if (!name.trim()) return { error: "Please provide a playlist name." };
-    if (!items || items.length === 0) return { error: "Please provide at least one item or video." };
-
-    const maxPlaylistId = get().playlists.reduce((max, p) => Math.max(max, p.id || 0), 0);
-    const playlistId = maxPlaylistId + 1;
-
-    const newPlaylist: Playlist = {
-      id: playlistId,
-      name: name.trim(),
-      url: url?.trim() || "",
-      daily_goal: Math.max(1, dailyGoal),
-      total_videos: items.length,
-      completed_videos: 0,
-      status: "ongoing",
-      created_at: dateKey()
-    };
-
-    let nextVideoId = get().playlistVideos.reduce((max, v) => Math.max(max, v.id || 0), 0) + 1;
-    const scheduled = schedulePlaylistVideos(
-      items.map((item) => ({
-        title: item.title.trim() || "Untitled item",
-        video_url: item.video_url?.trim() || "",
-        playlist_id: playlistId
-      })),
-      dailyGoal
-    );
-    const newVideos: PlaylistVideo[] = scheduled.map((v) => ({ ...v, id: nextVideoId++ }));
-
-    const updatedPlaylists = [...get().playlists, newPlaylist];
-    const updatedVideos = [...get().playlistVideos, ...newVideos];
-    const newTodos = makeTodos(get().problems, updatedVideos, updatedPlaylists);
-
-    set({ playlists: updatedPlaylists, playlistVideos: updatedVideos, todos: newTodos });
-
-    const stateToSave = { problems: get().problems, playlists: updatedPlaylists, playlistVideos: updatedVideos, groups: get().groups, settings: get().settings };
-    saveToLocalStorage(stateToSave);
-    void syncDexie(stateToSave);
-
-    return {};
-  },
-  importPlaylist: async ({ name, url, dailyGoal, items }) => {
-    const videoItems = items && items.length > 0 ? items : [{ title: name.trim() || "Playlist Item 1", video_url: url || "" }];
-    return get().createPlaylist({ name, url, dailyGoal, items: videoItems });
-  },
-  deletePlaylist: async (id) => {
-    const updatedPlaylists = get().playlists.filter((p) => p.id !== id);
-    const updatedVideos = get().playlistVideos.filter((v) => v.playlist_id !== id);
-    const newTodos = makeTodos(get().problems, updatedVideos, updatedPlaylists);
-
-    set({ playlists: updatedPlaylists, playlistVideos: updatedVideos, todos: newTodos });
-
-    const stateToSave = {
-      problems: get().problems,
-      playlists: updatedPlaylists,
-      playlistVideos: updatedVideos,
-      groups: get().groups,
-      settings: get().settings
-    };
-    saveToLocalStorage(stateToSave);
-    void syncDexie(stateToSave);
-  },
-  togglePausePlaylist: async (id) => {
-    const playlists = get().playlists.map((item) => {
-      if (item.id !== id) return item;
-      if (item.status === "completed") return item;
-      const newStatus = item.status === "paused" ? "ongoing" : "paused";
-      return { ...item, status: newStatus as Playlist["status"] };
-    });
-
-    const newTodos = makeTodos(get().problems, get().playlistVideos, playlists);
-
-    set({ playlists, todos: newTodos });
-
-    const stateToSave = {
-      problems: get().problems,
-      playlists,
-      playlistVideos: get().playlistVideos,
-      groups: get().groups,
-      settings: get().settings
-    };
+    const stateToSave = { problems: updatedProblems, groups: get().groups, settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
@@ -447,52 +302,46 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
 
     set({ groups: updatedGroups });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: get().problems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
   updateGroup: async (id, updates) => {
-    const current = get().groups.find((g) => g.id === id);
-    if (!current) return;
-    const updated = { ...current, ...updates };
-    const updatedGroups = get().groups.map((g) => (g.id === id ? updated : g));
-
+    const updatedGroups = get().groups.map((g) => (g.id === id ? { ...g, ...updates } : g));
     set({ groups: updatedGroups });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: get().problems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
   deleteGroup: async (id) => {
     const updatedGroups = get().groups.filter((g) => g.id !== id);
-
     set({ groups: updatedGroups });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: get().problems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
   addProblemToGroup: async (groupId, problemId) => {
-    const group = get().groups.find((g) => g.id === groupId);
-    if (!group || group.problemIds.includes(problemId)) return;
-    const updated = { ...group, problemIds: [...group.problemIds, problemId] };
-    const updatedGroups = get().groups.map((g) => (g.id === groupId ? updated : g));
-
+    const updatedGroups = get().groups.map((g) => {
+      if (g.id !== groupId) return g;
+      if (g.problemIds.includes(problemId)) return g;
+      return { ...g, problemIds: [...g.problemIds, problemId] };
+    });
     set({ groups: updatedGroups });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: get().problems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
   removeProblemFromGroup: async (groupId, problemId) => {
-    const group = get().groups.find((g) => g.id === groupId);
-    if (!group) return;
-    const updated = { ...group, problemIds: group.problemIds.filter((pid) => pid !== problemId) };
-    const updatedGroups = get().groups.map((g) => (g.id === groupId ? updated : g));
-
+    const updatedGroups = get().groups.map((g) => {
+      if (g.id !== groupId) return g;
+      return { ...g, problemIds: g.problemIds.filter((pid) => pid !== problemId) };
+    });
     set({ groups: updatedGroups });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: updatedGroups, settings: get().settings };
+    const stateToSave = { problems: get().problems, groups: updatedGroups, settings: get().settings };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
@@ -502,7 +351,7 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
 
     set({ settings: updated });
 
-    const stateToSave = { problems: get().problems, playlists: get().playlists, playlistVideos: get().playlistVideos, groups: get().groups, settings: updated };
+    const stateToSave = { problems: get().problems, groups: get().groups, settings: updated };
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
@@ -511,8 +360,6 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       version: 1,
       exportedAt: new Date().toISOString(),
       problems: get().problems,
-      playlists: get().playlists,
-      playlistVideos: get().playlistVideos,
       groups: get().groups,
       settings: get().settings
     };
@@ -521,16 +368,14 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
   importData: async (jsonString) => {
     try {
       const parsed = JSON.parse(jsonString);
-      if (!parsed || (!Array.isArray(parsed.problems) && !Array.isArray(parsed.playlists))) {
-        return { success: false, error: "Invalid backup format. Expected problems or playlists array." };
+      if (!parsed || !Array.isArray(parsed.problems)) {
+        return { success: false, error: "Invalid backup format. Expected problems array." };
       }
       const problems: Problem[] = Array.isArray(parsed.problems) ? parsed.problems : [];
-      const playlists: Playlist[] = Array.isArray(parsed.playlists) ? parsed.playlists : [];
-      const playlistVideos: PlaylistVideo[] = Array.isArray(parsed.playlistVideos) ? parsed.playlistVideos : [];
       const groups: ProblemGroup[] = Array.isArray(parsed.groups) ? parsed.groups : [];
       const settings: UserSettings = { ...defaultSettings, ...(parsed.settings || {}) };
 
-      const stateToSave = { problems, playlists, playlistVideos, groups, settings };
+      const stateToSave = { problems, groups, settings };
       saveToLocalStorage(stateToSave);
       void syncDexie(stateToSave);
 
@@ -545,10 +390,8 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
       window.localStorage.removeItem(STORAGE_KEY);
     }
     try {
-      await db.transaction("rw", [db.problems, db.playlists, db.playlist_videos, db.settings, db.problem_groups], async () => {
+      await db.transaction("rw", [db.problems, db.settings, db.problem_groups], async () => {
         await db.problems.clear();
-        await db.playlists.clear();
-        await db.playlist_videos.clear();
         await db.settings.clear();
         await db.problem_groups.clear();
       });
@@ -558,4 +401,3 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     await get().load();
   }
 }));
-
