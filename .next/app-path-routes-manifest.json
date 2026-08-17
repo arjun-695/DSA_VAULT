@@ -1,6 +1,6 @@
 {
-  "/api/profiles/route": "/api/profiles",
   "/api/contests/route": "/api/contests",
   "/_not-found/page": "/_not-found",
+  "/api/profiles/route": "/api/profiles",
   "/page": "/"
 }
