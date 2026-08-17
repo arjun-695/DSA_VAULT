@@ -81,7 +81,8 @@ type VaultStore = {
   deleteProblem: (id: number) => Promise<void>;
   toggleProblem: (id: number) => Promise<void>;
   toggleVideo: (id: number) => Promise<void>;
-  importPlaylist: (input: { name: string; url: string; dailyGoal: number }) => Promise<{ error?: string }>;
+  createPlaylist: (input: { name: string; url?: string; dailyGoal: number; items: { title: string; video_url?: string }[] }) => Promise<{ error?: string }>;
+  importPlaylist: (input: { name: string; url?: string; dailyGoal: number; items?: { title: string; video_url?: string }[] }) => Promise<{ error?: string }>;
   deletePlaylist: (id: number) => Promise<void>;
   togglePausePlaylist: (id: number) => Promise<void>;
   addGroup: (group: Omit<ProblemGroup, "id" | "created_at">) => Promise<void>;
@@ -355,27 +356,33 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     saveToLocalStorage(stateToSave);
     void syncDexie(stateToSave);
   },
-  importPlaylist: async ({ name, url, dailyGoal }) => {
-    const response = await fetch(`/api/youtube/playlist?url=${encodeURIComponent(url)}`);
-    const data = await response.json() as { error?: string; title?: string; videos?: { title: string; video_url: string; thumbnail_url?: string }[] };
-    if (!response.ok || !data.videos) return { error: data.error || "Could not import that playlist." };
+  createPlaylist: async ({ name, url, dailyGoal, items }) => {
+    if (!name.trim()) return { error: "Please provide a playlist name." };
+    if (!items || items.length === 0) return { error: "Please provide at least one item or video." };
 
     const maxPlaylistId = get().playlists.reduce((max, p) => Math.max(max, p.id || 0), 0);
     const playlistId = maxPlaylistId + 1;
 
     const newPlaylist: Playlist = {
       id: playlistId,
-      name: name.trim() || data.title || "Untitled playlist",
-      url,
-      daily_goal: dailyGoal,
-      total_videos: data.videos.length,
+      name: name.trim(),
+      url: url?.trim() || "",
+      daily_goal: Math.max(1, dailyGoal),
+      total_videos: items.length,
       completed_videos: 0,
       status: "ongoing",
       created_at: dateKey()
     };
 
     let nextVideoId = get().playlistVideos.reduce((max, v) => Math.max(max, v.id || 0), 0) + 1;
-    const scheduled = schedulePlaylistVideos(data.videos.map((video) => ({ ...video, playlist_id: playlistId })), dailyGoal);
+    const scheduled = schedulePlaylistVideos(
+      items.map((item) => ({
+        title: item.title.trim() || "Untitled item",
+        video_url: item.video_url?.trim() || "",
+        playlist_id: playlistId
+      })),
+      dailyGoal
+    );
     const newVideos: PlaylistVideo[] = scheduled.map((v) => ({ ...v, id: nextVideoId++ }));
 
     const updatedPlaylists = [...get().playlists, newPlaylist];
@@ -389,6 +396,10 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     void syncDexie(stateToSave);
 
     return {};
+  },
+  importPlaylist: async ({ name, url, dailyGoal, items }) => {
+    const videoItems = items && items.length > 0 ? items : [{ title: name.trim() || "Playlist Item 1", video_url: url || "" }];
+    return get().createPlaylist({ name, url, dailyGoal, items: videoItems });
   },
   deletePlaylist: async (id) => {
     const updatedPlaylists = get().playlists.filter((p) => p.id !== id);

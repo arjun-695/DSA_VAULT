@@ -5,7 +5,7 @@ import {
   Archive, ArrowUpRight, BookOpen, Bookmark, Calendar, Check, ChevronDown, CircleHelp, Clock3, Code2, Copy, Download,
   ExternalLink, FileText, Filter, Flame, FolderKanban, FolderPlus, Globe, Grid2X2, HardDrive, LayoutList, Link2, ListFilter, Loader2, Menu,
   Moon, PanelLeftClose, PanelLeftOpen, Pause, PauseCircle, Pencil, Play, PlayCircle, Plus, RefreshCw, Save, Search, Settings,
-  SlidersHorizontal, Sparkles, StickyNote, Sun, Target, Trash2, Trophy, Upload, User, X, Youtube
+  SlidersHorizontal, Sparkles, StickyNote, Sun, Target, Trash2, Trophy, Upload, User, X
 } from "lucide-react";
 import { useVaultStore } from "@/store/use-vault-store";
 import { dateKey } from "@/lib/revision";
@@ -526,7 +526,7 @@ function Dashboard({ onNavigate, onAddProblem, onViewNotes, query }: { onNavigat
                 if (target) onViewNotes(target);
               } : undefined}
             />
-          )) : <EmptyState icon={Check} title="Nothing due today" detail="Your review queue is clear. Add a problem or import a playlist to build momentum." action={onAddProblem} actionLabel="Log first problem" />}
+          )) : <EmptyState icon={Check} title="Nothing due today" detail="Your review queue is clear. Add a problem or create a playlist to build momentum." action={onAddProblem} actionLabel="Log first problem" />}
         </div>
       </section>
 
@@ -1818,61 +1818,111 @@ function PlaylistManager({ query }: { query: string }) {
     <div className="mx-auto max-w-[1240px] space-y-6">
       <div className="border-b border-line dark:border-[#27272a] pb-4">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Learning streams</p>
-        <p className="mt-1 text-sm text-muted">Import YouTube playlists and turn them into a sustainable daily cadence.</p>
+        <p className="mt-1 text-sm text-muted">Organize video lessons and study tracks into a sustainable daily cadence.</p>
       </div>
-      <PlaylistImportForm />
+      <PlaylistCreationForm />
       {ongoing.length > 0 && <PlaylistSection title="Ongoing playlists" icon={PlayCircle} playlists={ongoing} />}
       {paused.length > 0 && <PlaylistSection title="Paused playlists" icon={PauseCircle} playlists={paused} />}
       {completed.length > 0 && <PlaylistSection title="Completed playlists" icon={Check} playlists={completed} completed />}
       {!ongoing.length && !paused.length && !completed.length && (
         <div className="mt-8 border border-line dark:border-[#27272a] bg-white dark:bg-[#121214]">
-          <EmptyState icon={Youtube} title="Your learning streams start here" detail="Paste a YouTube playlist URL above. DSA Vault will fetch the videos securely, split them into daily chunks, and add each chunk to Today's Todos." />
+          <EmptyState icon={PlayCircle} title="Your learning streams start here" detail="Create a playlist and list your video lessons or topics above. DSA Vault will split them into daily chunks and schedule them into Today's Todos." />
         </div>
       )}
     </div>
   );
 }
 
-function PlaylistImportForm() {
-  const [url, setUrl] = useState("");
+function PlaylistCreationForm() {
   const [name, setName] = useState("");
+  const [itemsText, setItemsText] = useState("");
   const [dailyGoal, setDailyGoal] = useState("2");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
-  const { importPlaylist } = useVaultStore();
+  const { createPlaylist } = useVaultStore();
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setStatus("");
-    const result = await importPlaylist({ url, name, dailyGoal: Number(dailyGoal) });
+
+    const lines = itemsText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    const items = lines.length > 0
+      ? lines.map((line, idx) => {
+          if (line.startsWith("http://") || line.startsWith("https://")) {
+            return { title: `Lesson ${idx + 1}`, video_url: line };
+          }
+          return { title: line, video_url: "" };
+        })
+      : [{ title: `${name.trim()} - Lesson 1`, video_url: "" }];
+
+    const result = await createPlaylist({
+      name: name.trim(),
+      dailyGoal: Number(dailyGoal) || 2,
+      items
+    });
     setLoading(false);
-    if (result.error) setStatus(result.error);
-    else {
-      setStatus("Imported. Your first videos are in Today's Todos.");
-      setUrl("");
+    if (result.error) {
+      setStatus(result.error);
+    } else {
+      setStatus(`Created playlist with ${items.length} item${items.length === 1 ? "" : "s"}. Scheduled in Today's Todos.`);
       setName("");
+      setItemsText("");
     }
   };
 
   return (
     <form onSubmit={submit} className="border border-line dark:border-[#27272a] bg-white dark:bg-[#121214] p-4 md:p-5">
-      <div className="mb-4 flex items-center gap-2 font-display text-xl text-ink dark:text-white"><Youtube size={18} />Import a playlist</div>
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(180px,0.65fr)_120px_auto]">
-        <label className="flex h-11 items-center gap-2 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] px-3 focus-within:border-accent">
-          <Link2 size={16} className="shrink-0 text-muted" />
-          <input required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://youtube.com/playlist?list=..." className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted text-ink dark:text-white" />
-        </label>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Custom name (optional)" className="h-11 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] text-ink dark:text-white px-3 text-sm outline-none placeholder:text-muted focus:border-accent" />
+      <div className="mb-4 flex items-center gap-2 font-display text-xl text-ink dark:text-white">
+        <PlayCircle size={18} />
+        Create a playlist / learning path
+      </div>
+      <div className="grid gap-3 md:grid-cols-[1fr_130px_auto]">
+        <input
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Playlist name (e.g. NeetCode 150 / Graph Algorithms)"
+          className="h-11 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] text-ink dark:text-white px-3 text-sm outline-none placeholder:text-muted focus:border-accent"
+        />
         <label className="flex h-11 items-center gap-2 border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] px-3">
-          <input type="number" min="1" max="50" required value={dailyGoal} onChange={(e) => setDailyGoal(e.target.value)} className="w-full bg-transparent text-sm outline-none text-ink dark:text-white" />
-          <span className="whitespace-nowrap text-[10px] uppercase text-muted">videos/day</span>
+          <input
+            type="number"
+            min="1"
+            max="50"
+            required
+            value={dailyGoal}
+            onChange={(e) => setDailyGoal(e.target.value)}
+            className="w-full bg-transparent text-sm outline-none text-ink dark:text-white"
+          />
+          <span className="whitespace-nowrap text-[10px] uppercase text-muted">items/day</span>
         </label>
-        <button disabled={loading} className="flex h-11 items-center justify-center gap-2 bg-accent text-white px-5 text-sm font-medium hover:bg-ink dark:hover:bg-white dark:hover:text-ink disabled:opacity-60">
-          {loading ? <Loader2 className="animate-spin" size={16} /> : <ArrowUpRight size={16} />}Import
+        <button
+          disabled={loading}
+          className="flex h-11 items-center justify-center gap-2 bg-accent text-white px-5 text-sm font-medium hover:bg-ink dark:hover:bg-white dark:hover:text-ink disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="animate-spin" size={16} /> : <ArrowUpRight size={16} />}
+          Create
         </button>
       </div>
-      {status && <p className={`mt-3 text-xs ${status.startsWith("Imported") ? "text-green" : "text-[#ba1a1a]"}`}>{status}</p>}
+      <div className="mt-3">
+        <textarea
+          rows={3}
+          value={itemsText}
+          onChange={(e) => setItemsText(e.target.value)}
+          placeholder="Enter video/lesson titles or links (one per line, e.g. '01 - Two Sum', '02 - Valid Anagram'...)"
+          className="w-full border border-line dark:border-[#27272a] bg-white dark:bg-[#18181b] p-3 text-sm outline-none placeholder:text-muted text-ink dark:text-white focus:border-accent font-mono resize-y"
+        />
+      </div>
+      {status && (
+        <p className={`mt-3 text-xs ${status.startsWith("Created") ? "text-green" : "text-[#ba1a1a]"}`}>
+          {status}
+        </p>
+      )}
     </form>
   );
 }

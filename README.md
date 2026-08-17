@@ -10,13 +10,12 @@
     <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-15.1-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 15" /></a>
     <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" /></a>
     <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-    <a href="#-zero-quota-youtube-importer"><img src="https://img.shields.io/badge/API_Quota-0_Units-10B981?style=for-the-badge&logo=youtube&logoColor=white" alt="0 API Quota" /></a>
     <a href="https://dexie.org"><img src="https://img.shields.io/badge/Database-Dexie.js_Offline-C084FC?style=for-the-badge&logo=indexeddb&logoColor=white" alt="Local First" /></a>
     <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-3.4-38BDF8?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
   </p>
 
   <p align="center">
-    <b>DSA Vault</b> is a local-first, privacy-focused workspace designed for logging coding problems, mastering Data Structures &amp; Algorithms via <b>Spaced Repetition</b>, and extracting YouTube learning playlists with <b>Zero API Quota</b>.
+    <b>DSA Vault</b> is a local-first, privacy-focused workspace designed for logging coding problems, mastering Data Structures &amp; Algorithms via <b>Spaced Repetition</b>, and structuring learning playlists &amp; roadmaps into daily goals.
   </p>
 
 </div>
@@ -26,11 +25,9 @@
 ## 📌 Table of Contents
 
 - [✨ Key Features](#-key-features)
-- [⚡ Zero-Quota YouTube Importer](#-zero-quota-youtube-importer)
 - [🧠 Spaced Repetition Engine](#-spaced-repetition-engine)
-- [📐 System Architecture](#-system-architecture)
+- [🎯 Learning Streams &amp; Playlists](#-learning-streams--playlists)
 - [🚀 Quick Start](#-quick-start)
-- [💻 Command-Line Interface (CLI)](#-command-line-interface-cli)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [❓ Frequently Asked Questions](#-frequently-asked-questions)
 
@@ -45,8 +42,8 @@
       <p>Your problem data, notes, and study progress stay strictly in your browser using <b>Dexie.js (IndexedDB)</b> and <b>LocalStorage</b>. Zero accounts, zero tracking, zero server latency.</p>
     </td>
     <td width="50%">
-      <h3>⚡ Zero-Quota YouTube Playlist Extraction</h3>
-      <p>Extract hundreds of playlist videos in seconds using our integrated <code>yt-dlp</code> flat-scraper. Consumes <b>0 units of YouTube API quota</b> and requires no Google Developer API keys.</p>
+      <h3>🎯 Learning Streams &amp; Daily Cadence</h3>
+      <p>Organize custom learning tracks, video lessons, and problem sets into custom daily goals that seamlessly integrate with your daily Todo queue.</p>
     </td>
   </tr>
   <tr>
@@ -73,39 +70,6 @@
 
 ---
 
-## ⚡ Zero-Quota YouTube Importer
-
-DSA Vault includes an optimized playlist extraction engine designed to extract full YouTube playlists without burning through your free daily Google API quota.
-
-<p align="center">
-  <img src="public/docs/architecture_flow.svg" alt="Zero Quota Architecture" width="100%" />
-</p>
-
-### ⚖️ Extraction Method Comparison
-
-| Feature | Option 1: Zero-Quota Engine (Default) | Option 2: YouTube Data API v3 |
-| :--- | :---: | :---: |
-| **API Quota Cost** | **`0 Units` (100% Free)** | `1 Unit per 50 videos` |
-| **API Key Required?** | ❌ **No Key Required** | ⚠️ Required (`YOUTUBE_API_KEY`) |
-| **Daily Quota Limit** | **Unlimited** | 10,000 Units / Day |
-| **Extraction Engine** | `yt-dlp` Flat-Playlist Scraper | Google Cloud REST API |
-| **Extracted Metadata** | Title, URL, Video ID, Duration, Thumbnail | Title, URL, Video ID, Thumbnail |
-
-<details>
-<summary><b>🔍 How Option 1 (Zero-Quota) Works under the hood</b> (Click to expand)</summary>
-
-<br />
-
-When you paste a YouTube playlist URL into DSA Vault:
-1. Next.js server route `/api/youtube/playlist` invokes `extract_playlist.py` in non-downloading `extract_flat` mode.
-2. `yt-dlp` fetches playlist metadata directly from YouTube web endpoints in 1-2 HTTP requests.
-3. The extracted video list is automatically split into daily learning chunks based on your configured `dailyGoal` and scheduled into your daily todo list.
-4. If Python/`yt-dlp` is unavailable, the route gracefully falls back to Option 2 if an API key is present.
-
-</details>
-
----
-
 ## 🧠 Spaced Repetition Engine
 
 DSA Vault implements the **Ebbinghaus Forgetting Curve** model to ensure you never forget solved problems.
@@ -125,12 +89,20 @@ DSA Vault implements the **Ebbinghaus Forgetting Curve** model to ensure you nev
 
 ---
 
+## 🎯 Learning Streams & Playlists
+
+Create structured study paths and video lesson queues with automated daily pacing:
+- Define your playlist/track name and target pace (e.g. 2 items / day).
+- Add lesson titles, topics, or video links.
+- DSA Vault schedules items evenly across consecutive days and loads today's tasks directly into your dashboard.
+- Pause, resume, or mark lessons completed at your own pace.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher
-- **Python 3**: (Required for Option 1 zero-quota playlist extraction)
-- **yt-dlp**: `pip install yt-dlp`
 
 ### 1. Clone &amp; Install Dependencies
 ```bash
@@ -148,33 +120,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. The app ini
 
 ---
 
-## 💻 Command-Line Interface (CLI)
-
-You can also use the standalone zero-quota Python extractor from the command line:
-
-<details open>
-<summary><b>🛠️ CLI Usage Examples</b></summary>
-
-<br />
-
-```bash
-# 1. Extract video URLs to a text file (0 API Quota)
-python extract_playlist.py "https://www.youtube.com/playlist?list=PLMC9KNkIncKtPzgY-5rmhvj7fax8fdxoj" -o links.txt
-
-# 2. Export full playlist metadata as JSON (Title, URL, Video ID, Duration, Thumbnails)
-python extract_playlist.py "PLAYLIST_URL" -o playlist.json -f json
-
-# 3. Export as CSV for Excel / Spreadsheets
-python extract_playlist.py "PLAYLIST_URL" -o playlist.csv -f csv
-
-# 4. Stream JSON directly to stdout
-python extract_playlist.py "PLAYLIST_URL" --stdout
-```
-
-</details>
-
----
-
 ## 🛠️ Tech Stack
 
 <details open>
@@ -188,7 +133,6 @@ python extract_playlist.py "PLAYLIST_URL" --stdout
 - **Local Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
 - **Data Visualization**: [@visx](https://airbnb.io/visx/) heatmap &amp; chart tools
 - **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com/) + [Lucide Icons](https://lucide.dev/)
-- **Playlist Extraction**: [yt-dlp](https://github.com/yt-dlp/yt-dlp) Zero-Quota Python Engine
 
 </details>
 
@@ -200,12 +144,6 @@ python extract_playlist.py "PLAYLIST_URL" --stdout
 <summary><b>🔒 Is my data safe &amp; private?</b></summary>
 <br />
 Yes! DSA Vault operates 100% locally inside your web browser. All problem entries, notes, playlist progress, and settings are stored locally in IndexedDB via Dexie.js. No telemetry or tracking scripts are included.
-</details>
-
-<details>
-<summary><b>🔑 Do I need a YouTube Data API key to import playlists?</b></summary>
-<br />
-No! Thanks to Option 1 (zero-quota <code>yt-dlp</code> integration), you do not need any API keys or Google Cloud accounts. It extracts full playlists for free without consuming API quota.
 </details>
 
 <details>
